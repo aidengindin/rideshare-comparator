@@ -22,7 +22,7 @@ Active the virtualenv as described above.
 Then execute the following command:
 
 ```
-$ python3 api.py
+$ python3 api.py --debug
 ```
 
 The server should now be running on port 5000.
