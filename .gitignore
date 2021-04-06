@@ -1,0 +1,6 @@
+# Backend
+backend/bin/
+backend/lib/
+backend/lib64/
+backend/share/
+backend/pyenv.cfg
