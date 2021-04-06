@@ -1,3 +1,23 @@
+# First-time setup
+
+From the repository's root directory, run the following commands:
+
+```
+$ sudo apt install python3 python3-venv pip3  # if not already installed
+
+$ python3 -m venv backend
+
+$ cd backend
+
+$ source bin/activate
+
+$ pip3 install flask
+
+$ deactivate
+```
+
+This application was developed using Python 3.8, which is the default on Ubuntu 20.04 and newer.
+
 # Editing code
 
 This directory contains all the files required for the virtual environment to work properly.
