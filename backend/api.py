@@ -1,4 +1,7 @@
 import flask
+from flask import request
+
+import json
 import sys
 
 PORT = 5000    # port to run the server on
@@ -12,7 +15,12 @@ app.config["DEBUG"] = DEBUG
 
 @app.route("/", methods=["GET"])
 def home():
-    return "<p>This will return something useful later!"
+    response = {}
+    response["is-above-avg"] = False
+    response["results"] = {}
+    response["path"] = {}
+    
+    return json.dumps(response), {"Content-Type": "application/json"}
 
 if __name__ == "__main__":
     app.run(port=PORT)
