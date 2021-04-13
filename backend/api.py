@@ -23,4 +23,4 @@ def home():
     return json.dumps(response), {"Content-Type": "application/json"}
 
 if __name__ == "__main__":
-    app.run(port=PORT)
+    app.run(port=PORT, ssl_context="adhoc")
