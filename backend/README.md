@@ -11,7 +11,7 @@ $ cd backend
 
 $ source bin/activate
 
-$ pip3 install flask
+$ pip3 install flask pyopenssl
 
 $ deactivate
 ```
@@ -48,3 +48,5 @@ $ python3 api.py --debug
 The server should now be running on port 5000.
 You can access it locally at `localhost:5000`.
 When finished, type `Ctrl+C` to shut down the server and deactivate the virtualenv as described above.
+
+To run the server with HTTPS, use the `--https` flag.
