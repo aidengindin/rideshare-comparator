@@ -33,7 +33,7 @@ def home():
 
     # return an error if the query doesn't contain the required parameters
     if isAnyNone(srclat, srclon, destlat, destlon):
-        return json.dumps(generateError("Query did not contain all required arguments")), {"Content-Type": "application/json"}
+        return json.dumps(generateError("Query did not contain all required arguments")), 400, {"Content-Type": "application/json"}
 
     response = {}
     response["is-above-avg"] = False
@@ -51,7 +51,7 @@ def isAnyNone(*argv):
 
 # Generate an error JSON response of the form:
 # {
-#     "reaons:" [
+#     "reasons:" [
 #         {
 #             "language": "en",
 #             "message": reason
