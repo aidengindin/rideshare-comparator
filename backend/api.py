@@ -1,7 +1,9 @@
 import flask
 from flask import request
 
+import asyncio
 import json
+import requests
 import sys
 
 PORT = 5000         # port to run the server on
@@ -17,6 +19,7 @@ if "--https" in sys.argv:
 app = flask.Flask(__name__)
 app.config["DEBUG"] = DEBUG
 
+# Main function to respond to client requests
 @app.route("/", methods=["GET"])
 def home():
     query = request.args
@@ -35,12 +38,17 @@ def home():
     if isAnyNone(srclat, srclon, destlat, destlon):
         return json.dumps(generateError("Query did not contain all required arguments")), 400, {"Content-Type": "application/json"}
 
+    response = asyncio.run(build_response(srclat, srclon, destlat, destlon))
+    return json.dumps(response), {"Content-Type": "application/json"}
+
+# Build a response to send to the client
+# asynchronously waiting for external APIs
+async def build_response(srclat, srclon, destlat, destlon):
     response = {}
     response["is-above-avg"] = False
     response["results"] = {}
-    response["path"] = {}
-    
-    return json.dumps(response), {"Content-Type": "application/json"}
+    response["path"] = await get_route(srclat, srclon, destlat, destlon)
+    return response
 
 # Test if any argument is equal to None
 def isAnyNone(*argv):
@@ -49,23 +57,30 @@ def isAnyNone(*argv):
             return True
     return False
 
-# Generate an error JSON response of the form:
-# {
-#     "reasons:" [
-#         {
-#             "language": "en",
-#             "message": reason
-#         }
-#     ]
-# }
+# Generate an error JSON response
 def generateError(reason):
-    response = {}
-    response["reasons"] = []
-    response["reasons"].append({})
-    response["reasons"][0]["message"] = "en"
-    response["reasons"][0]["message"] = reason
+    return {
+        "reasons": [
+            {
+                "language": "en",
+                "message": reason
+            }
+        ]
+    }
 
-    return response
+# Get route data from MapQuest
+async def get_route(srclat, srclon, destlat, destlon):
+    keyfile = open("mapquest-key", "r")
+    key = keyfile.read()
+    keyfile.close()
+
+    response = requests.get("http://www.mapquestapi.com/directions/v2/route?key={}&from={}&to={}".format(key, locstring(srclat, srclon), locstring(destlat, destlon)))
+    if response.ok:
+        return response.json()
+    return generateError("MapQuest API responded with an error: " + response.reason)
+
+def locstring(lat, lon):
+    return str(lat) + "," + str(lon)
 
 if __name__ == "__main__":
     app.run(port=PORT, ssl_context=None)
