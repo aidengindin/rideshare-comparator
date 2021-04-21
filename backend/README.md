@@ -11,7 +11,7 @@ $ cd backend
 
 $ source bin/activate
 
-$ pip3 install flask pyopenssl
+$ pip3 install flask pyopenssl requests
 
 $ deactivate
 ```
