@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <script src="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.css" />
+
+    <title>MapQuest Test</title>
+
+    <style>
+        #map {
+            height: 750px;
+        }
+    </style>
+
+</head>
+<body>
+    <div id="map"></div>
+    <!--<div id='wrap'>
+        <div id='input-container'>
+            <div>
+                <input class="e-input" type="text" placeholder="Starting Location" />
+            </div>
+        </div>
+    </div>-->
+    <!--<div id="start">
+        <p>{{message}}</p>
+        <input v-model="message">
+    </div>
+    <div id="destination">
+        <p>{{message}}</p>
+        <input v-model="message">
+    </div>-->
+
+    <form id="start" onsubmit="return false;">
+        <input placeholder="Starting Location" type="text" id="userStart" />
+        <input type="submit" onclick="getStart();" />
+    </form>
+
+    <form id="end" onsubmit="return false;">
+        <input placeholder="Destination" type="text" id="userEnd" />
+        <input type="submit" onclick="getStart();" />
+    </form>
+
+
+
+    <script>
+        L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
+        var startInput = '11611 Euclid Ave';
+        var endInput = '5300 Riverside Dr';
+        var directions = L.mapquest.directions();
+
+        var map = L.mapquest.map('map', {
+            center: [37.7749, -122.4194],
+            layers: L.mapquest.tileLayer('map'),
+            zoom: 12
+        });
+
+        function getDirections() {
+            directions.route({
+                start: startInput,
+                end: endInput
+            });
+        }
+       
+        var start = new Vue({
+            el: '#start',
+            data: {
+                message: 'Starting Location'
+            }
+        })
+
+        var destination = new Vue({
+            el: '#destination',
+            data: {
+                message: 'Destination'
+            }
+        })
+
+        function getStart() {
+            startInput = document.getElementById("userStart").value;
+            if (endInput !== '') {
+                getDirections();
+            }
+        }
+
+        function getEnd() {
+            endInput = document.getElementById("userEnd").value;
+            if (startInput !== '') {
+                getDirections();
+                alert()
+            }
+        }
+
+    </script>
+</body>
+</html>
