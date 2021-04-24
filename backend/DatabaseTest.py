@@ -2,69 +2,6 @@ import mysql.connector
 import datetime as dt
 import time
 
-<<<<<<< Updated upstream
-
-def database_function(scrLat, srcLon, destLat, destLon): #, results_list): 
-    #put password in file - read it
-    mydb = mysql.connector.connect(
-        host= "localhost",
-        user = "root",
-        passwd = "Rashnar18",
-        database = "rideshare-comparator"
-        )
-    mc = mydb.cursor()
-    costHigher = True
-    #rideList = 
-    
-    """
-     Template code to insert data into tables
-     q1 = mc.execute("INSERT INTO request (srcLat, srcLon, destLat, destLon, date, time) VALUES(%s,%s,%s,%s,%s,%s)", (srcLat, srcLon, destLat, destLon, date, time)
-     q2 = mc.execute("INSERT INTO ride (name, price, seats, shared, pickup, arrival) VALUES(%s,%s,%s,%s,%s,%s)", (name, price, seats, shared, pickup, arrival)
-     q3 = mc.execute("INSERT INTO generates(reqid, rid) VALUES(%s, %s)",(lastreqid, lastrid))    
-    """
-
-    # Inserting the request, rides, and generates
-    """ 
-    mc.execute("INSERT INTO request(srcLat, srcLon, destLat, destLon, date, time) VALUES(%s,%s,%s,%s,%s,%s)", (100.231, 243.21, 200.451, 354.213, '2021-4-12', '18:25:00'))
-    lastreqid = mc.lastrowid
-    
-    FOR LOOP-as many entries in results_list
-        
-        adding up the prices
-        mc.execute("INSERT INTO ride(name, price, seats, shared, pickup, arrival) VALUES(%s,%s,%s,%s,%s,%s)", ('pool', 32.31, 3, 0, '20:59:59', '23:59:59'))
-        lastrid = mc.lastrowid
-        mc.execute("INSERT INTO generates(reqid, rid) VALUES(%s, %s)",(lastreqid, lastrid))
-    """
-    
-    #mydb.commit()
-
-    #Current date and time for request made
-    date = dt.date.today()
-    t = time.localtime()
-    now = time.strftime("%H:%M:%S", t)
-    
-    mc.execute("INSERT INTO request(srcLat, srcLon, destLat, destLon, date, time) VALUES(%s,%s,%s,%s,%s,%s)", (scrLat, srcLon, destLat, destLon, date, t))
-
-    
-
-    #Clearing the specified table - for testing purposes
-    #mc.execute("DELETE FROM request")
-    #mc.execute("DELETE FROM ride")
-    #mc.execute("DELETE FROM generates")
-
-    """
-    mc.execute("SELECT * FROM request")
-    for x in mc:
-        print(x)
-    """
-
-    # AVG the rides Get the list of rides with similar distance traveled, (maybe time), return list --> get average, run an if statement
-        # calc distance from lat and lon for every entry
-    
-    return costHigher
-
-database_function(100.231,243.21, 200.451, 354.213)
-=======
 mydb = mysql.connector.connect(
     host= "localhost",
     user = "root",
@@ -74,7 +11,7 @@ mydb = mysql.connector.connect(
 mc = mydb.cursor()
 
 def isHigher(scrLat, srcLon, destLat, destLon, distance, results): #, distance, results): 
-    costHigher = True
+    costHigher = False
   
     #Current date and time for request made
     date = dt.date.today()
@@ -84,6 +21,8 @@ def isHigher(scrLat, srcLon, destLat, destLon, distance, results): #, distance, 
     count = 0
 
     histAvg = calcAVG(distance)
+    if(histAvg is 1):
+        return costHigher
     
     mc.execute("INSERT INTO request(srcLat, srcLon, destLat, destLon, date, time, distance) VALUES(%s,%s,%s,%s,%s,%s,%s)", (scrLat, srcLon, destLat, destLon, date, t, distance))
     lastreqid = mc.lastrowid
@@ -100,18 +39,18 @@ def isHigher(scrLat, srcLon, destLat, destLon, distance, results): #, distance, 
         mc.execute("INSERT INTO generates(reqid, rid) VALUES(%s, %s)",(lastreqid, lastrid))
         totalPrice += price
         count += 1
+    mydb.commit()
     
-    print(totalPrice/count)
-    mydb.commit()  
-    # AVG the rides Get the list of rides with similar distance traveled, (maybe time), return list --> get average, run an if statement
-    currAvg = totalPrice/count
-    print(histAvg)
- 
+    currAvg = float(totalPrice/count)
+    percInc = 100*((histAvg - currAvg)/(histAvg))
+    print(percInc)
+    if(percInc > 50):
+        costHigher = True
     
     return costHigher
 
 def clearTables():
-    #Clearing the specified table - for testing purposes
+    #Clearing the tables - for testing purposes
     mc.execute("DELETE FROM generates")
     mc.execute("DELETE FROM request")
     mc.execute("DELETE FROM ride")
@@ -131,16 +70,25 @@ def checkTables():
         print(x)
 
 def check():
-    mc.execute("SELECT * FROM request JOIN generates ON request.reqid = generates.reqid JOIN ride ON ride.rid = generates.rid WHERE request.distance > (d-1) AND request.distance < (d+1)")
+    mc.execute("SELECT * FROM request JOIN generates ON request.reqid = generates.reqid JOIN ride ON ride.rid = generates.rid")
     for x in mc:
         print(x)
 
 
 def calcAVG(distance):
     d = distance
-    mc.execute("SELECT AVG(price) AS ap FROM ride JOIN generates ON ride.rid = generates.rid JOIN request ON request.reqid = generates.reqid")
-    avg = mc.fetchone()[0]
-    return avg
+    mc.execute("SET @d:= 'distance'")
+    mc.execute("SELECT AVG(price) FROM ride JOIN generates ON ride.rid = generates.rid JOIN request ON request.reqid = generates.reqid")
+    print(type(mc.fetchall()))
+    if(not all(mc.fetchall())):
+        entry = str(mc.fetchall()[0])
+        avg1 = entry.replace("(","")
+        avg2 = avg1.replace(")","")
+        avg = avg2.replace(",","")
+        return float(avg)
+    else:
+        print("HELLO")
+        return 1
 
     
 dicList = [{'name': "UberXL", 'price': 32.12, 'seats': 3, 'shared': 0, 'pickup': '20:59:59', 'arrival': '23:59:59'},
@@ -148,9 +96,8 @@ dicList = [{'name': "UberXL", 'price': 32.12, 'seats': 3, 'shared': 0, 'pickup':
            {"name": "Uber Pool", "price": 54.68, "seats": 2, "shared": 0, "pickup": '16:59:59', "arrival": '22:59:59'},
            {"name": "Uber Comfort", "price": 56.25, "seats": 1, "shared": 0, "pickup": '18:59:59', "arrival": '23:59:59'}]
 
-isHigher(100.231,243.21, 200.451, 354.213,15.23,dicList)
+print(isHigher(100.231,243.21, 200.451, 354.213,15.23,dicList))
 #clearTables()
 #checkTables()
 #check()
 
->>>>>>> Stashed changes
