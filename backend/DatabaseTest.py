@@ -21,8 +21,7 @@ def isHigher(scrLat, srcLon, destLat, destLon, distance, results): #, distance, 
     count = 0
 
     histAvg = calcAVG(distance)
-    if(histAvg is 1):
-        return costHigher
+    
     
     mc.execute("INSERT INTO request(srcLat, srcLon, destLat, destLon, date, time, distance) VALUES(%s,%s,%s,%s,%s,%s,%s)", (scrLat, srcLon, destLat, destLon, date, t, distance))
     lastreqid = mc.lastrowid
@@ -40,9 +39,12 @@ def isHigher(scrLat, srcLon, destLat, destLon, distance, results): #, distance, 
         totalPrice += price
         count += 1
     mydb.commit()
+
+    if(histAvg == 1):
+        return costHigher
     
     currAvg = float(totalPrice/count)
-    percInc = 100*((histAvg - currAvg)/(histAvg))
+    percInc = 100*((currAvg - histAvg)/(currAvg))
     print(percInc)
     if(percInc > 50):
         costHigher = True
@@ -76,19 +78,22 @@ def check():
 
 
 def calcAVG(distance):
-    d = distance
-    mc.execute("SET @d:= 'distance'")
-    mc.execute("SELECT AVG(price) FROM ride JOIN generates ON ride.rid = generates.rid JOIN request ON request.reqid = generates.reqid")
-    print(type(mc.fetchall()))
-    if(not all(mc.fetchall())):
-        entry = str(mc.fetchall()[0])
-        avg1 = entry.replace("(","")
-        avg2 = avg1.replace(")","")
-        avg = avg2.replace(",","")
-        return float(avg)
-    else:
-        print("HELLO")
+    upper = distance + 1
+    lower = distance - 1
+    #mc.execute("CREATE TABLE distances (upper FLOAT, lower FLOAT)")
+    mc.execute("INSERT INTO distances(upper, lower) VALUES(%s,%s)",(upper, lower))  
+    mc.execute("SELECT AVG(price) FROM ride JOIN generates ON ride.rid = generates.rid JOIN request ON request.reqid = generates.reqid, distances WHERE request.distance BETWEEN distances.lower AND distances.upper")
+    var = mc.fetchall()[0]
+    #print(var)
+    entry = str(var)
+    avg1 = entry.replace("(","")
+    avg2 = avg1.replace(")","")
+    avg = avg2.replace(",","")
+    mc.execute("DELETE FROM distances")
+    if(avg == "None"):
         return 1
+    else:
+        return float(avg)
 
     
 dicList = [{'name': "UberXL", 'price': 32.12, 'seats': 3, 'shared': 0, 'pickup': '20:59:59', 'arrival': '23:59:59'},
@@ -96,7 +101,15 @@ dicList = [{'name': "UberXL", 'price': 32.12, 'seats': 3, 'shared': 0, 'pickup':
            {"name": "Uber Pool", "price": 54.68, "seats": 2, "shared": 0, "pickup": '16:59:59', "arrival": '22:59:59'},
            {"name": "Uber Comfort", "price": 56.25, "seats": 1, "shared": 0, "pickup": '18:59:59', "arrival": '23:59:59'}]
 
-print(isHigher(100.231,243.21, 200.451, 354.213,15.23,dicList))
+dicList1 = [{'name': "UberXL", 'price': 92.12, 'seats': 3, 'shared': 0, 'pickup': '20:59:59', 'arrival': '23:59:59'},
+           {'name': "UberX", 'price': 51.51, 'seats': 3, 'shared': 1, 'pickup': '15:59:59', 'arrival': '21:59:59'},
+           {"name": "Uber Pool", "price": 104.68, "seats": 2, "shared": 0, "pickup": '16:59:59', "arrival": '22:59:59'},
+           {"name": "Uber Comfort", "price": 86.25, "seats": 1, "shared": 0, "pickup": '18:59:59', "arrival": '23:59:59'}]
+
+clearTables()
+isHigher(100.231,243.21, 200.451, 354.213,15.23,dicList)
+#print(isHigher(100.231,243.21, 200.451, 354.213,15.23,dicList))
+print(isHigher(100.231,243.21, 200.451, 354.213,35.23,dicList1))
 #clearTables()
 #checkTables()
 #check()
