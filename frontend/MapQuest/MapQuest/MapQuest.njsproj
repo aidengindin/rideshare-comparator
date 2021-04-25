@@ -10,7 +10,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>c0861ec0-a501-4267-b4f3-3fec73078387</ProjectGuid>
-    <ProjectHome>.</ProjectHome>
+    <ProjectHome>..\..\..\..\source\repos\MapQuest\MapQuest\</ProjectHome>
     <StartupFile>node_modules\@vue\cli-service\bin\vue-cli-service.js</StartupFile>
     <SearchPath>
     </SearchPath>
