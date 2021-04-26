@@ -17,7 +17,7 @@
 
 </head>
 <body>
-    <div id="map"></div>
+
     <!--<div id='wrap'>
         <div id='input-container'>
             <div>
@@ -34,22 +34,18 @@
         <input v-model="message">
     </div>-->
 
-    <form id="start" onsubmit="return false;">
+    <form id="prompt" onsubmit="return false;">
         <input placeholder="Starting Location" type="text" id="userStart" />
-        <input type="submit" onclick="getStart();" />
-    </form>
-
-    <form id="end" onsubmit="return false;">
         <input placeholder="Destination" type="text" id="userEnd" />
-        <input type="submit" onclick="getStart();" />
+        <input type="submit" onclick="getInput();" />
     </form>
 
-
+    <div id="map"></div>
 
     <script>
         L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
-        var startInput = '11611 Euclid Ave';
-        var endInput = '5300 Riverside Dr';
+        var startInput;
+        var endInput;
         var directions = L.mapquest.directions();
 
         var map = L.mapquest.map('map', {
@@ -64,7 +60,7 @@
                 end: endInput
             });
         }
-       
+
         var start = new Vue({
             el: '#start',
             data: {
@@ -78,6 +74,12 @@
                 message: 'Destination'
             }
         })
+
+        function getInput() {
+            startInput = document.getElementById("userStart").value;
+            endInput = document.getElementById("userEnd").value;
+            getDirections();
+        }
 
         function getStart() {
             startInput = document.getElementById("userStart").value;
