@@ -47,9 +47,9 @@ def home():
 # asynchronously waiting for external APIs
 async def build_response(srclat, srclon, destlat, destlon):
     response = {}
-    response["is-above-avg"] = False
-    response["results"] = {}
+    response["results"] = await get_rides(srclat, srclon, destlat, destlon)
     response["path"] = await get_route(srclat, srclon, destlat, destlon)
+    response["is-above-avg"] = False
     return response
 
 # Test if any argument is equal to None
@@ -116,7 +116,7 @@ async def get_uber_rides(srclat, srclon, destlat, destlon):
 
 # Get available rides from Lyft
 # Since we don't currently have Uber API access, this just generates dummy data
-async def get_uber_rides(srclat, srclon, destlat, destlon):
+async def get_lyft_rides(srclat, srclon, destlat, destlon):
     return [
         {
             "provider": "Lyft",
@@ -147,6 +147,11 @@ async def get_uber_rides(srclat, srclon, destlat, destlon):
         }
     ]
 
+async def get_rides(srclat, srclon, destlat, destlon):
+    uber_rides = await get_uber_rides(srclat, srclon, destlat, destlon)
+    lyft_rides = await get_lyft_rides(srclat, srclon, destlat, destlon)
+    return uber_rides + lyft_rides
+
 # Convert a lat/lon pair to a string
 def locstring(lat, lon):
     return str(lat) + "," + str(lon)
@@ -155,7 +160,7 @@ def locstring(lat, lon):
 # Offsets are specified in minutes
 def random_time_in_range(start_offset, end_offset):
     offset = datetime.timedelta(seconds=(random.randrange(start_offset, end_offset) * 60))
-    return datetime.datetime.now() + offset
+    return (datetime.datetime.now() + offset).isoformat()
 
 if __name__ == "__main__":
     app.run(port=PORT, ssl_context=None)
