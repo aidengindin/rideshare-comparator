@@ -8,18 +8,7 @@ import random
 import requests
 import sys
 
-PORT = 5000         # port to run the server on
-DEBUG = False       # whether to run in debug mode
-SSL_CONTEXT = None  # indicates whether to use HTTPS
-
-if "--debug" in sys.argv:
-    DEBUG = True
-
-if "--https" in sys.argv:
-    SSL_CONTEXT = "ahdoc"
-
 app = flask.Flask(__name__)
-app.config["DEBUG"] = DEBUG
 
 # Main function to respond to client requests
 @app.route("/", methods=["GET"])
@@ -37,7 +26,7 @@ def home():
         destlon = query["destlon"]
 
     # return an error if the query doesn't contain the required parameters
-    if isAnyNone(srclat, srclon, destlat, destlon):
+    if is_any_none(srclat, srclon, destlat, destlon):
         return json.dumps(generateError("Query did not contain all required arguments")), 400, {"Content-Type": "application/json"}
 
     response = asyncio.run(build_response(srclat, srclon, destlat, destlon))
@@ -53,7 +42,7 @@ async def build_response(srclat, srclon, destlat, destlon):
     return response
 
 # Test if any argument is equal to None
-def isAnyNone(*argv):
+def is_any_none(*argv):
     for arg in argv:
         if arg == None:
             return True
@@ -163,4 +152,15 @@ def random_time_in_range(start_offset, end_offset):
     return (datetime.datetime.now() + offset).isoformat()
 
 if __name__ == "__main__":
+    PORT = 5000         # port to run the server on
+    DEBUG = False       # whether to run in debug mode
+    SSL_CONTEXT = None  # indicates whether to use HTTPS
+
+    if "--debug" in sys.argv:
+        DEBUG = True
+
+    if "--https" in sys.argv:
+        SSL_CONTEXT = "ahdoc"
+
+    app.config["DEBUG"] = DEBUG
     app.run(port=PORT, ssl_context=None)
