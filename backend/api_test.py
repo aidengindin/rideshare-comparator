@@ -1,4 +1,5 @@
 import api
+import datetime
 import unittest
 
 class TestAPI(unittest.TestCase):
@@ -28,10 +29,15 @@ class TestAPI(unittest.TestCase):
         pass
     
     def test_locstring(self):
-        pass
+        self.assertEquals(api.locstring(0.1, 0.2), "0.1,0.2")
 
     def test_random_time_in_range(self):
-        pass
+        lower = 10
+        upper = 20
+        now = datetime.datetime.now()
+        time = datetime.datetime.fromisoformat(api.random_time_in_range(lower, upper))
+        self.assertTrue(now + datetime.timedelta(seconds=(lower * 60)) <= time)
+        self.assertTrue(time <= now + datetime.timedelta(seconds=(upper * 60)))
 
 if __name__ == "__main__":
     unittest.main()
