@@ -106,7 +106,7 @@ dicList1 = [{'name': "UberXL", 'price': 92.12, 'seats': 3, 'shared': 0, 'pickup'
            {"name": "Uber Pool", "price": 104.68, "seats": 2, "shared": 0, "pickup": '16:59:59', "arrival": '22:59:59'},
            {"name": "Uber Comfort", "price": 86.25, "seats": 1, "shared": 0, "pickup": '18:59:59', "arrival": '23:59:59'}]
 
-#clearTables()
+clearTables()
 #isHigher(100.231,243.21, 200.451, 354.213,15.23,dicList)
 #print(isHigher(100.231,243.21, 200.451, 354.213,15.23,dicList))
 #print(isHigher(100.231,243.21, 200.451, 354.213,35.23,dicList1))
