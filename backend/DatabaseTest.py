@@ -99,17 +99,17 @@ def calcAVG(distance):
 dicList = [{'name': "UberXL", 'price': 32.12, 'seats': 3, 'shared': 0, 'pickup': '20:59:59', 'arrival': '23:59:59'},
            {'name': "UberX", 'price': 21.51, 'seats': 3, 'shared': 1, 'pickup': '15:59:59', 'arrival': '21:59:59'},
            {"name": "Uber Pool", "price": 54.68, "seats": 2, "shared": 0, "pickup": '16:59:59', "arrival": '22:59:59'},
-           {"name": "Uber Comfort", "price": 56.25, "seats": 1, "shared": 0, "pickup": '18:59:59', "arrival": '23:59:59'}]
+           {"name": "Uber Comfort", "price": 56.25, "seats": 1, "shared": 0, "pickup": '18:59:59', "arrival": '23:59:59'}] 
 
 dicList1 = [{'name': "UberXL", 'price': 92.12, 'seats': 3, 'shared': 0, 'pickup': '20:59:59', 'arrival': '23:59:59'},
            {'name': "UberX", 'price': 51.51, 'seats': 3, 'shared': 1, 'pickup': '15:59:59', 'arrival': '21:59:59'},
            {"name": "Uber Pool", "price": 104.68, "seats": 2, "shared": 0, "pickup": '16:59:59', "arrival": '22:59:59'},
            {"name": "Uber Comfort", "price": 86.25, "seats": 1, "shared": 0, "pickup": '18:59:59', "arrival": '23:59:59'}]
 
-clearTables()
-isHigher(100.231,243.21, 200.451, 354.213,15.23,dicList)
+#clearTables()
+#isHigher(100.231,243.21, 200.451, 354.213,15.23,dicList)
 #print(isHigher(100.231,243.21, 200.451, 354.213,15.23,dicList))
-print(isHigher(100.231,243.21, 200.451, 354.213,35.23,dicList1))
+#print(isHigher(100.231,243.21, 200.451, 354.213,35.23,dicList1))
 #clearTables()
 #checkTables()
 #check()
