@@ -2,6 +2,7 @@
 backend/bin
 backend/lib
 backend/lib64
+backend/__pycache__
 backend/share
 backend/pyvenv.cfg
 backend/client-secret
