@@ -79,7 +79,7 @@ async def get_uber_rides(srclat, srclon, destlat, destlon):
             "name": "UberX",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.randrange(15, 25),
+            "price": random.uniform(15, 25),
             "seats": 4,
             "shared": False
         },
@@ -88,7 +88,7 @@ async def get_uber_rides(srclat, srclon, destlat, destlon):
             "name": "UberXL",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.randrange(25, 35),
+            "price": random.uniform(25, 35),
             "seats": 6,
             "shared": False
         },
@@ -97,7 +97,7 @@ async def get_uber_rides(srclat, srclon, destlat, destlon):
             "name": "Uber Pool",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.randrange(5, 15),
+            "price": random.uniform(5, 15),
             "seats": 4,
             "shared": True
         }
@@ -112,7 +112,7 @@ async def get_lyft_rides(srclat, srclon, destlat, destlon):
             "name": "Lyft",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.randrange(15, 25),
+            "price": random.uniform(15, 25),
             "seats": 3,
             "shared": False
         },
@@ -121,7 +121,7 @@ async def get_lyft_rides(srclat, srclon, destlat, destlon):
             "name": "Lyft XL",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.randrange(25, 35),
+            "price": random.uniform(25, 35),
             "seats": 5,
             "shared": False
         },
@@ -130,7 +130,7 @@ async def get_lyft_rides(srclat, srclon, destlat, destlon):
             "name": "Lyft Shared",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.randrange(5, 15),
+            "price": random.uniform(5, 15),
             "seats": 4,
             "shared": True
         }
@@ -148,7 +148,7 @@ def locstring(lat, lon):
 # Choose a time uniformly at random between (current time + start_offset) and (current_time + end_offset)
 # Offsets are specified in minutes
 def random_time_in_range(start_offset, end_offset):
-    offset = datetime.timedelta(seconds=(random.randrange(start_offset, end_offset) * 60))
+    offset = datetime.timedelta(seconds=(random.uniform(start_offset, end_offset) * 60))
     return (datetime.datetime.now() + offset).isoformat()
 
 if __name__ == "__main__":
@@ -163,4 +163,4 @@ if __name__ == "__main__":
         SSL_CONTEXT = "ahdoc"
 
     app.config["DEBUG"] = DEBUG
-    app.run(port=PORT, ssl_context=None)
+    app.run(port=PORT, ssl_context=SSL_CONTEXT)
