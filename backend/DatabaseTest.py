@@ -23,7 +23,7 @@ def isHigher(scrLat, srcLon, destLat, destLon, distance, results): #, distance, 
     histAvg = calcAVG(distance)
     
     
-    mc.execute("INSERT INTO request(srcLat, srcLon, destLat, destLon, date, time, distance) VALUES(%s,%s,%s,%s,%s,%s,%s)", (scrLat, srcLon, destLat, destLon, date, t, distance))
+    mc.execute("INSERT INTO request(srcLat, srcLon, destLat, destLon, date, time, distance) VALUES(%s,%s,%s,%s,%s,%s,%s)", (scrLat, srcLon, destLat, destLon, date, now, distance))
     lastreqid = mc.lastrowid
     
     for result in results:

@@ -39,8 +39,10 @@ def home():
 # asynchronously waiting for external APIs
 async def build_response(srclat, srclon, destlat, destlon):
     response = {}
+    
     response["results"] = await get_rides(srclat, srclon, destlat, destlon)
-    response["path"] = await get_route(srclat, srclon, destlat, destlon)
+    path = await get_route(srclat, srclon, destlat, destlon)
+    response["path"] = path["route"]
 
     distance = get_distance(response["path"])
     if math.isnan(distance):
