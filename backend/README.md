@@ -11,7 +11,7 @@ $ cd backend
 
 $ source bin/activate
 
-$ pip3 install flask pyopenssl requests
+$ pip3 install flask pyopenssl requests mysql-connector-python
 
 $ deactivate
 ```
