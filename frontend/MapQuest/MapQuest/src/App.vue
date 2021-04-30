@@ -1,7 +1,7 @@
 <template>
-    <div id="app">
+    <!--<div id="app">
         <Home msg="Hello world!" />
-    </div>
+    </div>-->
 </template>
 
 <script>

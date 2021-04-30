@@ -59,7 +59,7 @@
 
 <body style="border: 0; margin: 40px;">
 
-    <!--search body-->
+    <!--style table-->
     <style>
         th {
             color: #fff;
@@ -70,7 +70,13 @@
     <input type="search" id="search-input" placeholder="Start Point..." />
     <input type="search" id="destination-input" placeholder="Destination..." />
     <input type="submit" onclick="getInput();" />
+    <input placeholder="Clear" onclick="clear();" />
 
+    <!--<form id="prompt" onsubmit="return false;">
+        <input placeholder="Starting Location" type="text" id="userStart" />
+        <input placeholder="Destination" type="text" id="userEnd" />
+        <input type="submit" onclick="getInput();" />
+    </form>-->
     <!--build map-->
     <div id="map"></div>
 
@@ -94,6 +100,9 @@
         <tbody id="myTable">
         </tbody>
     </table>
+
+    <!--reset button-->
+    <input type="reset" onclick="reset();" />
 
 
     <!--Scripts for building HTML table with JSON Data-->
@@ -134,35 +143,25 @@
 
             for (var i = 0; i < data.length; i++) {
                 var row = ` <tr>
-                                    <td> ${data[i].provider}</td>
-                                    <td> ${data[i].name}</td>
-                                    <td> ${data[i].pickup}</td>
-                                    <td> ${data[i].arrival}</td>
-                                    <td> ${data[i].price}</td>
-                                    <td> ${data[i].seats}</td>
-                                    <td> ${data[i].shared}</td>
-                                </tr>`
+                                            <td> ${data[i].provider}</td>
+                                            <td> ${data[i].name}</td>
+                                            <td> ${data[i].pickup}</td>
+                                            <td> ${data[i].arrival}</td>
+                                            <td> ${data[i].price}</td>
+                                            <td> ${data[i].seats}</td>
+                                            <td> ${data[i].shared}</td>
+                                        </tr>`
                 table.innerHTML += row
             }
         }
 
     </script>
 
-
-
-
-    <!--<form id="prompt" onsubmit="return false;">
-        <input placeholder="Starting Location" type="text" id="userStart" />
-        <input placeholder="Destination" type="text" id="userEnd" />
-        <input type="submit" onclick="getInput();" />
-    </form>-->
-
-
-
+    <!--Scripts to build the map and produce a route-->
     <script>
         L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
-        var startInput;
-        var endInput;
+        let startInput;
+        let endInput;
         var directions = L.mapquest.directions();
 
         var map = L.mapquest.map('map', {
@@ -171,30 +170,26 @@
             zoom: 12
         });
 
-        function getDirections(start, end) {
+        function getDirections(startLoc, destLoc) {
             directions.route({
-                start: start,
-                end: end
+                start: startLoc,
+                end: destLoc
             });
         }
-
-        var start = new Vue({
-            el: '#start',
-            data: {
-                message: 'Starting Location'
-            }
-        })
-
-        var destination = new Vue({
-            el: '#destination',
-            data: {
-                message: 'Destination'
-            }
-        })
 
         function getInput() {
             startInput = document.getElementById("search-input").value;
             endInput = document.getElementById("destination-input").value;
+
+            //startStreet = document.getElementById("").value;
+            //startCity = document.getElementById("").value;
+            //startState = document.getElementById("").value;
+            //startPostal = document.getElementById("").value;
+
+            //destStreet = document.getElementById("").value;
+            //destCity = document.getElementById("").value;
+            //destState = document.getElementById("").value;
+            //destPostal = document.getElementById("").value;
 
             getDirections(startInput, endInput);
 
@@ -202,6 +197,14 @@
             //alert(endInput);
         }
 
+        function reset() {
+            location.reload();
+        }
+
     </script>
 </body>
 </html>
+
+
+<!--this is a change
+    testing git hub-->
