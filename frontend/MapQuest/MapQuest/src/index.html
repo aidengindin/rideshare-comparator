@@ -1,0 +1,207 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+
+    <!--map references-->
+    <script src="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.css" />
+
+    <!--search references-->
+    <script src="https://api.mqcdn.com/sdk/place-search-js/v1.0.0/place-search.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/place-search-js/v1.0.0/place-search.css" />
+    <link rel="stylesheet" href="main.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+
+    <link type="text/javascript" rel="stylesheet" href="https://api.mqcdn.com/sdk/place-search-js/v1.0.0/place-search.css" />
+
+    <title>FrontEnd</title>
+
+    <!--place.js code-->
+    <script type="text/javascript">
+        window.onload = function () {
+            placeSearch({
+                key: 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW',
+                container: document.querySelector('#search-input'),
+                useDeviceLocation: true,
+                collection: [
+                    'poi',
+                    'airport',
+                    'address',
+                    'adminArea',
+                ]
+            });
+            placeSearch({
+                key: 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW',
+                container: document.querySelector('#destination-input'),
+                useDeviceLocation: true,
+                collection: [
+                    'poi',
+                    'airport',
+                    'address',
+                    'adminArea',
+                ]
+            })
+        }
+    </script>
+
+    <!--define the style for the map-->
+    <style>
+        #map {
+            height: 750px;
+        }
+    </style>
+
+</head>
+
+<body style="border: 0; margin: 40px;">
+
+    <!--search body-->
+    <style>
+        th {
+            color: #fff;
+        }
+    </style>
+
+    <!--prompt user input-->
+    <input type="search" id="search-input" placeholder="Start Point..." />
+    <input type="search" id="destination-input" placeholder="Destination..." />
+    <input type="submit" onclick="getInput();" />
+
+    <!--build map-->
+    <div id="map"></div>
+
+    <script>
+        var results = placeSearch.getVal();
+        console.log(results);
+    </script>
+
+    <!--Table Headers-->
+    <table class="table table-striped">
+        <tr class="bg-info">
+            <th data-column="provider" data-order="desc">Provider &#9650</th>
+            <th data-column="name" data-order="desc">Name &#9650</th>
+            <th data-column="pickup" data-order="desc">Pickup &#9650</th>
+            <th data-column="arrival" data-order="desc">Arrival &#9650</th>
+            <th data-column="price" data-order="desc">Price &#9650</th>
+            <th data-column="seats" data-order="desc">Seats &#9650</th>
+            <th data-column="shared" data-order="desc">Shared &#9650</th>
+        </tr>
+
+        <tbody id="myTable">
+        </tbody>
+    </table>
+
+
+    <!--Scripts for building HTML table with JSON Data-->
+    <script>
+        var myArray = [
+            { 'provider': 'Lyft', 'name': 'ride 1', 'pickup': '5:20', 'arrival': '5:10', 'price': 50, 'seats': 1, 'shared': true },
+            { 'provider': 'Uber', 'name': 'ride 2', 'pickup': '5:20', 'arrival': '5:20', 'price': 10, 'seats': 3, 'shared': true },
+            { 'provider': 'Bird', 'name': 'ride 3', 'pickup': '5:20', 'arrival': '5:30', 'price': 5, 'seats': 2, 'shared': true },
+        ]
+
+        /*table sorting functionality*/
+        $('th').on('click', function () {
+            var column = $(this).data('column')
+            var order = $(this).data('order')
+            var text = $(this).html()
+            text = text.substring(0, text.length - 1)
+
+
+            if (order == 'desc') {
+                $(this).data('order', "asc")
+                myArray = myArray.sort((a, b) => a[column] > b[column] ? 1 : -1)
+                text += '&#9660'
+            } else {
+                $(this).data('order', "desc")
+                myArray = myArray.sort((a, b) => a[column] < b[column] ? 1 : -1)
+                text += '&#9650'
+            }
+            $(this).html(text)
+            buildTable(myArray)
+        })
+
+        buildTable(myArray)
+
+        /*Function that Builds the Table from JSON array*/
+        function buildTable(data) {
+            var table = document.getElementById('myTable')
+            table.innerHTML = ''
+
+            for (var i = 0; i < data.length; i++) {
+                var row = ` <tr>
+                                    <td> ${data[i].provider}</td>
+                                    <td> ${data[i].name}</td>
+                                    <td> ${data[i].pickup}</td>
+                                    <td> ${data[i].arrival}</td>
+                                    <td> ${data[i].price}</td>
+                                    <td> ${data[i].seats}</td>
+                                    <td> ${data[i].shared}</td>
+                                </tr>`
+                table.innerHTML += row
+            }
+        }
+
+    </script>
+
+
+
+
+    <!--<form id="prompt" onsubmit="return false;">
+        <input placeholder="Starting Location" type="text" id="userStart" />
+        <input placeholder="Destination" type="text" id="userEnd" />
+        <input type="submit" onclick="getInput();" />
+    </form>-->
+
+
+
+    <script>
+        L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
+        var startInput;
+        var endInput;
+        var directions = L.mapquest.directions();
+
+        var map = L.mapquest.map('map', {
+            center: [37.7749, -122.4194],
+            layers: L.mapquest.tileLayer('map'),
+            zoom: 12
+        });
+
+        function getDirections(start, end) {
+            directions.route({
+                start: start,
+                end: end
+            });
+        }
+
+        var start = new Vue({
+            el: '#start',
+            data: {
+                message: 'Starting Location'
+            }
+        })
+
+        var destination = new Vue({
+            el: '#destination',
+            data: {
+                message: 'Destination'
+            }
+        })
+
+        function getInput() {
+            startInput = document.getElementById("search-input").value;
+            endInput = document.getElementById("destination-input").value;
+
+            getDirections(startInput, endInput);
+
+            //alert(startInput);
+            //alert(endInput);
+        }
+
+    </script>
+</body>
+</html>
