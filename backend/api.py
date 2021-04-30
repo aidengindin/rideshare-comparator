@@ -1,9 +1,12 @@
 import flask
 from flask import request
 
+import DatabaseTest as db
+
 import asyncio
 import datetime
 import json
+import math
 import random
 import requests
 import sys
@@ -38,7 +41,12 @@ async def build_response(srclat, srclon, destlat, destlon):
     response = {}
     response["results"] = await get_rides(srclat, srclon, destlat, destlon)
     response["path"] = await get_route(srclat, srclon, destlat, destlon)
-    response["is-above-avg"] = False
+
+    distance = get_distance(response["path"])
+    if math.isnan(distance):
+        return generateError("no path from specified start location to end location")
+
+    response["is-above-avg"] = db.isHigher(srclat, srclon, destlat, destlon, distance, response["results"])
     return response
 
 # Test if any argument is equal to None
@@ -69,6 +77,14 @@ async def get_route(srclat, srclon, destlat, destlon):
     if response.ok:
         return response.json()
     return generateError("MapQuest API responded with an error: " + response.reason)
+
+# Extract the distance from a route dictionary
+# If the route does not contain a distance, the function will return NaN
+def get_distance(route):
+    try:
+        return route["distance"]
+    except KeyError:
+        return float("NaN")
 
 # Get available rides from Uber
 # Since we don't currently have Uber API access, this just generates dummy data
