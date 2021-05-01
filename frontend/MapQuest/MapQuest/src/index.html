@@ -7,6 +7,7 @@
     <!--map references-->
     <script src="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.css" />
 
     <!--search references-->
@@ -24,7 +25,7 @@
     <script type="text/javascript">
         window.onload = function () {
             placeSearch({
-                key: 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW',
+                key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',                   // 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW',
                 container: document.querySelector('#search-input'),
                 useDeviceLocation: true,
                 collection: [
@@ -35,7 +36,7 @@
                 ]
             });
             placeSearch({
-                key: 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW',
+                key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',                   // 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW',
                 container: document.querySelector('#destination-input'),
                 useDeviceLocation: true,
                 collection: [
@@ -70,15 +71,16 @@
     <input type="search" id="search-input" placeholder="Start Point..." />
     <input type="search" id="destination-input" placeholder="Destination..." />
     <input type="submit" onclick="getInput();" />
-    <input placeholder="Clear" onclick="clear();" />
+    <input type="reset" onclick="reset();">
 
     <!--<form id="prompt" onsubmit="return false;">
         <input placeholder="Starting Location" type="text" id="userStart" />
         <input placeholder="Destination" type="text" id="userEnd" />
         <input type="submit" onclick="getInput();" />
     </form>-->
+
     <!--build map-->
-    <div id="map"></div>
+    <div id="map"></div><br>
 
     <script>
         var results = placeSearch.getVal();
@@ -162,6 +164,10 @@
         L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
         let startInput;
         let endInput;
+        let startLat;
+        let startLon;
+        let endLat;
+        let endLon;
         var directions = L.mapquest.directions();
 
         var map = L.mapquest.map('map', {
@@ -169,12 +175,64 @@
             layers: L.mapquest.tileLayer('map'),
             zoom: 12
         });
+        map.addControl(L.mapquest.control());
 
-        function getDirections(startLoc, destLoc) {
-            directions.route({
-                start: startLoc,
-                end: destLoc
-            });
+        //function getDirections(startLoc, destLoc) {
+        //    directions.route({
+        //        start: startLoc,
+        //        end: destLoc
+        //    });
+        //}
+
+        const geocode_url = "http://www.mapquestapi.com/geocoding/v1/address";
+        async function getLatLon(startLoc, destLoc) {
+            axios.get(geocode_url, {
+                params: {
+                    key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
+                    location: startLoc
+                }
+            })
+                .then(function(response) {
+                    console.log(response);
+                    startLat = response.data.results[0].locations[0].latLng.lat;
+                    startLon = response.data.results[0].locations[0].latLng.lng;
+                    console.log(startLat);
+                    console.log(startLon);
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+            axios.get(geocode_url, {
+                params: {
+                    key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
+                    location: destLoc
+                }
+            })
+                .then(function(response) {
+                    console.log(response);
+                    endLat = response.data.results[0].locations[0].latLng.lat;
+                    endLon = response.data.results[0].locations[0].latLng.lng;
+                    console.log(endLat);
+                    console.log(endLon);
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        }
+
+        async function getRoute(startLat, startLon, endLat, endLon) {
+            axios.get("", {    //hard code localhost port 5000
+                params: {
+                    srclat: startLat,
+                    srclon: startLon,
+                    destlat: endLat,
+                    destlon: endlon
+                }
+            })
+            .then(function(response){
+                
+            })
         }
 
         function getInput() {
@@ -191,6 +249,8 @@
             //destState = document.getElementById("").value;
             //destPostal = document.getElementById("").value;
 
+            getLatLon(startInput, endInput);
+
             getDirections(startInput, endInput);
 
             //alert(startInput);
@@ -204,7 +264,3 @@
     </script>
 </body>
 </html>
-
-
-<!--this is a change
-    testing git hub-->
