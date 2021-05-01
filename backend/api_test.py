@@ -2,8 +2,10 @@ import api
 
 import asyncio
 import datetime
+import math
 import unittest
 
+# CWRU to FirstEnergy Stadium
 SRCLAT = 41.504601
 SRCLON = -81.609879
 DESTLAT = 41.506088
@@ -19,6 +21,17 @@ class TestAPI(unittest.TestCase):
             self.assertIsInstance(response["is-above-avg"], bool)
         except KeyError as e:
             self.fail("build_response raised KeyError: " + str(e))
+        
+    # Test routing from CWRU to 10 Downing Street - this should fail
+    def test_build_response_where_too_far(self):
+        response = asyncio.run(api.build_response(SRCLAT, SRCLON, 51.503396, -0.12764))
+        try:
+            self.assertIsInstance(response["reasons"][0]["message"], str)
+        except KeyError as e:
+            if "results" in response.keys():
+                self.fail("build_response successfully built a response when it should not have: " + str(response))
+            else:
+                self.fail("build_response raised KeyError: " + str(e))   
     
     def test_is_any_none(self):
         self.assertFalse(api.is_any_none())
@@ -36,6 +49,12 @@ class TestAPI(unittest.TestCase):
             route = path["route"]
         except KeyError as e:
             self.fail("get_route raised KeyError: " + str(e))
+    
+    def test_get_route(self):
+        route1 = {"distance": 3}
+        route2 = {"not-distance": 3}
+        self.assertEqual(api.get_distance(route1), 3)
+        self.assertTrue(math.isnan(api.get_distance(route2)))
 
     def test_get_uber_rides(self):
         uber_rides = asyncio.run(api.get_uber_rides(SRCLAT, SRCLON, DESTLAT, DESTLON))
