@@ -1,2 +1,18 @@
-body {
+.mq-place-search {
+    overflow-y: visible;
+    margin-bottom: 5%;
+    z-index: 9999;
 }
+
+.mq-dropdown-menu {
+    z-index: 9999;
+}
+
+#map {
+    border-radius: 25px;
+}
+
+.wrapper {
+    position: relative;
+}
+
