@@ -146,7 +146,20 @@
             table.innerHTML = ''
 
             for (var i = 0; i < data.length; i++) {
-                var row = ` <tr>
+                if(data[i].isaboveavg == true){
+                    var row =  <tr>
+                                            <td style="color:red"> ${data[i].provider}</td>
+                                            <td style="color:red"> ${data[i].name}</td>
+                                            <td style="color:red"> ${data[i].pickup}</td>
+                                            <td style="color:red"> ${data[i].arrival}</td>
+                                            <td style="color:red"> ${data[i].price}</td>
+                                            <td style="color:red"> ${data[i].seats}</td>
+                                            <td style="color:red"> ${data[i].shared}</td>
+                                        </tr>
+                table.innerHTML += row 
+                }
+                else{
+                    var row =  <tr>
                                             <td> ${data[i].provider}</td>
                                             <td> ${data[i].name}</td>
                                             <td> ${data[i].pickup}</td>
@@ -154,8 +167,9 @@
                                             <td> ${data[i].price}</td>
                                             <td> ${data[i].seats}</td>
                                             <td> ${data[i].shared}</td>
-                                        </tr>`
+                                        </tr>
                 table.innerHTML += row
+                }
             }
         }
 
@@ -271,7 +285,7 @@
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
                     // use this to reference the local API
-                    // getRoute(startLat, startLon, endLat, endLon);
+                    //getRoute(startLat, startLon, endLat, endLon);
 
                     // comment out the getRouteTest() function when done testing
                     getRouteTest(startCord, endCord);
@@ -285,16 +299,28 @@
         }
 
         // get the maneuver points of route provided by local API
-        const api_url = "http://localhost:5000";
+        const api_url = 'http://127.0.0.1:5000/';
+        const PORT = 5000;
+        const HOST = '127.0.0.1';
         function getRoute(sLat, sLon, eLat, eLon) {
-            axios.get(api_url, {                                                    //hard code localhost port 5000
-                params: {
-                    srclat: sLat,
-                    srclon: sLon,
-                    destlat: eLat,
-                    destlon: eLon
-                }
+            // axios.get(api_url, {                                                    //hard code localhost port 5000
+            //     params: {
+            //         srclat: sLat,
+            //         srclon: sLon,
+            //         destlat: eLat,
+            //         destlon: eLon
+            //     }
+            // })
+
+            fetch(api_url, {
+                srclat: sLat,
+                srclon: sLon,
+                destlat: eLat,
+                destlon: eLon
             })
+
+            // fetch(api_url)
+
             .then(function(response){
                 cosole.log(response);
 
@@ -340,8 +366,7 @@
                     routeComponentsLat[i] = maneuverComponents[i].startPoint.lat;
                     routeComponentsLon[i] = maneuverComponents[i].startPoint.lng;
                     console.log("index: " + i);
-                    console.log(routeComponentsLat[i]);
-                    console.log(routeComponentsLon[i]);
+                    console.log(routeComponentsLat[i] + ", " + routeComponentsLon[i]);
                 }                
             })
             .then(function(response){
