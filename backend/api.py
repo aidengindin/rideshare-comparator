@@ -1,5 +1,6 @@
 import flask
 from flask import request
+from flask_cors import CORS
 
 import asyncio
 import datetime
@@ -20,6 +21,8 @@ if "--https" in sys.argv:
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = DEBUG
+
+cors = CORS(app)
 
 # Main function to respond to client requests
 @app.route("/", methods=["GET"])
