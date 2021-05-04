@@ -1,5 +1,6 @@
 import flask
 from flask import request
+from flask_cors import CORS
 
 import DatabaseTest as db
 
@@ -12,6 +13,8 @@ import requests
 import sys
 
 app = flask.Flask(__name__)
+
+cors = CORS(app)
 
 # Main function to respond to client requests
 @app.route("/", methods=["GET"])

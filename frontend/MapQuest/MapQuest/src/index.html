@@ -280,15 +280,15 @@
                 .then(function(response) {
                     var startCord = [startLat, startLon];
                     var endCord = [endLat, endLon];
-                    console.log(startCord);
-                    console.log(endCord);
+                    console.log("start cords: " + startCord);
+                    console.log("destination cords: " + endCord);
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
                     // use this to reference the local API
-                    //getRoute(startLat, startLon, endLat, endLon);
+                    getRoute(startLat, startLon, endLat, endLon);
 
                     // comment out the getRouteTest() function when done testing
-                    getRouteTest(startCord, endCord);
+                    // getRouteTest(startCord, endCord);
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
                 
                 })
@@ -303,29 +303,19 @@
         const PORT = 5000;
         const HOST = '127.0.0.1';
         function getRoute(sLat, sLon, eLat, eLon) {
-            // axios.get(api_url, {                                                    //hard code localhost port 5000
-            //     params: {
-            //         srclat: sLat,
-            //         srclon: sLon,
-            //         destlat: eLat,
-            //         destlon: eLon
-            //     }
-            // })
-
-            fetch(api_url, {
-                srclat: sLat,
-                srclon: sLon,
-                destlat: eLat,
-                destlon: eLon
+            axios.get(api_url, {                                                    //hard code localhost port 5000
+                params: {
+                    srclat: sLat,
+                    srclon: sLon,
+                    destlat: eLat,
+                    destlon: eLon
+                }
             })
-
-            // fetch(api_url)
-
             .then(function(response){
-                cosole.log(response);
+                console.log(response);
 
                 // get lat and lon cords for each intersection
-                var maneuverComponents = response.data.route.legs[0].maneuvers;
+                var maneuverComponents = response.data.path.route.legs[0].maneuvers;
 
                 for(var i = 0; i < maneuverComponents.length; i++) {
                     routeComponentsLat[i] = maneuverComponents[i].startPoint.lat;
