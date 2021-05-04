@@ -7,6 +7,7 @@
     <!--map references-->
     <script src="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.css" />
 
     <!--search references-->
@@ -24,7 +25,7 @@
     <script type="text/javascript">
         window.onload = function () {
             placeSearch({
-                key: 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW',
+                key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',                   // 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW',
                 container: document.querySelector('#search-input'),
                 useDeviceLocation: true,
                 collection: [
@@ -35,7 +36,7 @@
                 ]
             });
             placeSearch({
-                key: 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW',
+                key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',                   // 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW',
                 container: document.querySelector('#destination-input'),
                 useDeviceLocation: true,
                 collection: [
@@ -59,7 +60,7 @@
 
 <body style="border: 0; margin: 40px;">
 
-    <!--search body-->
+    <!--style table-->
     <style>
         th {
             color: #fff;
@@ -67,13 +68,22 @@
     </style>
 
     <!--prompt user input-->
-    <input type="search" id="search-input" placeholder="Start Point..." />
-    <input type="search" id="destination-input" placeholder="Destination..." />
-    <input type="submit" onclick="getInput();" />
+    <span class = "wrapper">
+        <input type="search" id="search-input" placeholder="Start Point..." />
+        <input type="search" id="destination-input" placeholder="Destination..." /><br><br>
+        <input type="submit" onclick="getInput();" />
+        <input type="reset" onclick="reset();"><br><br>
 
-    <!--build map-->
-    <div id="map"></div>
+        <!--<form id="prompt" onsubmit="return false;">
+            <input placeholder="Starting Location" type="text" id="userStart" />
+            <input placeholder="Destination" type="text" id="userEnd" />
+            <input type="submit" onclick="getInput();" />
+        </form>-->
 
+        <!--build map-->
+        <div style="margin: 40px", id="map"></div>
+    </span>
+    
     <script>
         var results = placeSearch.getVal();
         console.log(results);
@@ -94,6 +104,9 @@
         <tbody id="myTable">
         </tbody>
     </table>
+
+    <!--reset button-->
+    <input type="reset" onclick="reset();" />
 
 
     <!--Scripts for building HTML table with JSON Data-->
@@ -133,73 +146,288 @@
             table.innerHTML = ''
 
             for (var i = 0; i < data.length; i++) {
-                var row = ` <tr>
-                                    <td> ${data[i].provider}</td>
-                                    <td> ${data[i].name}</td>
-                                    <td> ${data[i].pickup}</td>
-                                    <td> ${data[i].arrival}</td>
-                                    <td> ${data[i].price}</td>
-                                    <td> ${data[i].seats}</td>
-                                    <td> ${data[i].shared}</td>
-                                </tr>`
+                if(data[i].isaboveavg == true){
+                    var row =  <tr>
+                                            <td style="color:red"> ${data[i].provider}</td>
+                                            <td style="color:red"> ${data[i].name}</td>
+                                            <td style="color:red"> ${data[i].pickup}</td>
+                                            <td style="color:red"> ${data[i].arrival}</td>
+                                            <td style="color:red"> ${data[i].price}</td>
+                                            <td style="color:red"> ${data[i].seats}</td>
+                                            <td style="color:red"> ${data[i].shared}</td>
+                                        </tr>
+                table.innerHTML += row 
+                }
+                else{
+                    var row =  <tr>
+                                            <td> ${data[i].provider}</td>
+                                            <td> ${data[i].name}</td>
+                                            <td> ${data[i].pickup}</td>
+                                            <td> ${data[i].arrival}</td>
+                                            <td> ${data[i].price}</td>
+                                            <td> ${data[i].seats}</td>
+                                            <td> ${data[i].shared}</td>
+                                        </tr>
                 table.innerHTML += row
+                }
             }
         }
 
     </script>
 
 
+    <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 
 
-    <!--<form id="prompt" onsubmit="return false;">
-        <input placeholder="Starting Location" type="text" id="userStart" />
-        <input placeholder="Destination" type="text" id="userEnd" />
-        <input type="submit" onclick="getInput();" />
-    </form>-->
-
-
-
+    <!--Scripts to build the map and produce a route-->
     <script>
         L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
         var startInput;
         var endInput;
-        var directions = L.mapquest.directions();
+        var startLat;
+        var startLon;
+        var endLat;
+        var endLon;
+        var routeComponentsLat = [];
+        var routeComponentsLon = [];
 
+        // create the map
         var map = L.mapquest.map('map', {
-            center: [37.7749, -122.4194],
+            center: [41.5043, -81.6084],
             layers: L.mapquest.tileLayer('map'),
             zoom: 12
         });
+        map.addControl(L.mapquest.control());
 
-        function getDirections(start, end) {
-            directions.route({
-                start: start,
-                end: end
+        // create map plotter
+        var routeDeveloper = L.mapquest.directions();
+        routeDeveloper.setLayerOptions({
+            startMarker: {
+                draggable: false,
+                iconOptions: {
+                    size: 'md'
+                }
+            },
+            endMarker: {
+                draggable: false,
+                iconOptions: {
+                    size: 'md'
+                }
+            },
+            waypointMarker: {
+                draggable: false,
+                icon: 'circle',
+                iconOptions: {
+                    size: 'sm',
+                    primaryColor: '#dcf0ef',
+                    secondaryColor: '#dcf0ef'
+                },
+                title: ''
+            },
+            routeRibbon: {
+                draggable: false,
+                opacity: 1.0,
+                showTraffic: false
+            },
+            alternateRouteRibbon: {
+                opacity: 1.0
+            },
+        });
+
+        // basic route finder using MapQuest API (not used)
+        function getDirections(startLoc, destLoc) {
+           routeDeveloper.route({
+               start: startLoc,
+               end: destLoc
+           });
+        }
+
+        // change user input into latitude and longitude cordinates through Geocoding API provided by MapQuest
+        const geocode_url = "http://www.mapquestapi.com/geocoding/v1/address";
+        function getLatLon(startLoc, destLoc) {
+            axios.get(geocode_url, {
+                params: {
+                    key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
+                    location: startLoc
+                }
+            })
+                .then(function(response) {
+                    console.log(response);
+                    // save starting location's latitude and longitude cordinates
+                    startLat = response.data.results[0].locations[0].latLng.lat;
+                    startLon = response.data.results[0].locations[0].latLng.lng;
+                    console.log(startLat);
+                    console.log(startLon);
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+            axios.get(geocode_url, {
+                params: {
+                    key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
+                    location: destLoc
+                }
+            })
+                .then(function(response) {
+                    console.log(response);
+                    // save destinations latitude and longitude cordinates
+                    endLat = response.data.results[0].locations[0].latLng.lat;
+                    endLon = response.data.results[0].locations[0].latLng.lng;
+                    console.log(endLat);
+                    console.log(endLon);
+                })
+                .then(function(response) {
+                    var startCord = [startLat, startLon];
+                    var endCord = [endLat, endLon];
+                    console.log(startCord);
+                    console.log(endCord);
+
+/*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+                    // use this to reference the local API
+                    //getRoute(startLat, startLon, endLat, endLon);
+
+                    // comment out the getRouteTest() function when done testing
+                    getRouteTest(startCord, endCord);
+/*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+                
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+
+        }
+
+        // get the maneuver points of route provided by local API
+        const api_url = 'http://127.0.0.1:5000/';
+        const PORT = 5000;
+        const HOST = '127.0.0.1';
+        function getRoute(sLat, sLon, eLat, eLon) {
+            // axios.get(api_url, {                                                    //hard code localhost port 5000
+            //     params: {
+            //         srclat: sLat,
+            //         srclon: sLon,
+            //         destlat: eLat,
+            //         destlon: eLon
+            //     }
+            // })
+
+            fetch(api_url, {
+                srclat: sLat,
+                srclon: sLon,
+                destlat: eLat,
+                destlon: eLon
+            })
+
+            // fetch(api_url)
+
+            .then(function(response){
+                cosole.log(response);
+
+                // get lat and lon cords for each intersection
+                var maneuverComponents = response.data.route.legs[0].maneuvers;
+
+                for(var i = 0; i < maneuverComponents.length; i++) {
+                    routeComponentsLat[i] = maneuverComponents[i].startPoint.lat;
+                    routeComponentsLon[i] = maneuverComponents[i].startPoint.lng;
+                    console.log("index: " + i);
+                    console.log(routeComponentsLat[i]);
+                    console.log(routeComponentsLon[i]);
+                }                
+            })
+            .then(function(response){
+                plotRoute(routeComponentsLat, routeComponentsLon);
+            })
+            .catch(function(error){
+                console.log(error);
             });
         }
 
-        var start = new Vue({
-            el: '#start',
-            data: {
-                message: 'Starting Location'
-            }
-        })
+        // testing output of route API
+        const route_url = "http://www.mapquestapi.com/directions/v2/route";
+        function getRouteTest(sCord, eCord) {
+            // console.log("running getRouteTest");
+            // console.log(sCord);
+            // console.log(eCord);
+            axios.get(route_url, {
+                params: {
+                    key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
+                    from: startInput,          // L.latLng(sCord),
+                    to: endInput            // L.latLng(eCord)
+                }
+            })
+            .then(function(response){
+                console.log(response);
+                // console.log("route responded");
+                // get lat and lon cords for each intersection
+                var maneuverComponents = response.data.route.legs[0].maneuvers;
 
-        var destination = new Vue({
-            el: '#destination',
-            data: {
-                message: 'Destination'
-            }
-        })
+                for(var i = 0; i < maneuverComponents.length; i++) {
+                    routeComponentsLat[i] = maneuverComponents[i].startPoint.lat;
+                    routeComponentsLon[i] = maneuverComponents[i].startPoint.lng;
+                    console.log("index: " + i);
+                    console.log(routeComponentsLat[i] + ", " + routeComponentsLon[i]);
+                }                
+            })
+            .then(function(response){
+                plotRoute(routeComponentsLat, routeComponentsLon);
+            })
+            .catch(function(error){
+                console.log(error);
+            });
+        }
 
+        // plot maneuver points on map to display route
+        function plotRoute(rLats, rLons) {
+            var maneuverList = [];
+
+            for(var i = 1; i < rLats.length - 1; i++) {
+                maneuverList[i] = L.latLng([rLats[i], rLons[i]]);
+            }
+
+            routeDeveloper.route({
+                start: L.latLng([rLats[0], rLons[0]]),
+                end: L.latLng([rLats[rLats.length - 1], rLons[rLons.length - 1]]),
+                waypoints: maneuverList
+            });
+        }
+
+        // for testing outputs
+        function printValues(startLat) {
+            console.log("printing");
+            // console.log(startLat);
+            // console.log(startLon);
+            // console.log(endLat);
+            // console.log(endLon);
+            // for(var i = 0; i < routeComponentsLat.length; i++) {
+            //     console.log(routeComponentsLat[i]);
+            // }
+        }
+
+        // the "main" function that grabs the user's input
         function getInput() {
             startInput = document.getElementById("search-input").value;
             endInput = document.getElementById("destination-input").value;
 
-            getDirections(startInput, endInput);
+            //resetMap();
 
-            //alert(startInput);
-            //alert(endInput);
+            // creates basic route
+            //getDirections(startInput, endInput);
+
+            // starts the process of creating our route 
+            getLatLon(startInput, endInput);
+
+            // prints values for testing purposes
+            //printValues();
+        }
+
+        function resetMap() {
+            map.removeLayer(routeDeveloper);
+        }
+
+        // refresh the page
+        function reset() {
+            location.reload();
         }
 
     </script>
