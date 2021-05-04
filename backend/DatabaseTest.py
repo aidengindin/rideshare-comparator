@@ -2,11 +2,15 @@ import mysql.connector
 import datetime as dt
 import time
 
+
+file = open('databaseKey.txt','r')
+lines = file.readlines()
+
 # Connecting to the mySQL Server 
 mydb = mysql.connector.connect(
-    host= "localhost",
+    host= str(lines[0]),
     user = "root",
-    passwd = "Rashnar18",
+    passwd = str(lines[1]),
     database = "rideshare-comparator"
     )
 mc = mydb.cursor()
@@ -16,7 +20,7 @@ def isHigher(scrLat, srcLon, destLat, destLon, distance, results):
     costHigher = False
   
     #Current date and time for request made
-    date = dt.date.today()
+    date = dt.date.today()  
     t = time.localtime()
     now = time.strftime("%H:%M:%S", t)
 
@@ -137,4 +141,3 @@ def testTrue():
     print(isHigher(100.231,243.21, 200.451, 354.213,16.23,dicList2))
     checkTables()
     clearTables()
-

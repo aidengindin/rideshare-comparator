@@ -7,3 +7,4 @@ backend/share
 backend/pyvenv.cfg
 backend/client-secret
 backend/mapquest-key
+backend/databaseKey.txt
