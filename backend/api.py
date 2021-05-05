@@ -100,7 +100,7 @@ async def get_uber_rides(srclat, srclon, destlat, destlon):
             "name": "UberX",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.uniform(15, 25),
+            "price": round(random.uniform(15, 25), 2),
             "seats": 4,
             "shared": False
         },
@@ -109,7 +109,7 @@ async def get_uber_rides(srclat, srclon, destlat, destlon):
             "name": "UberXL",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.uniform(25, 35),
+            "price": round(random.uniform(25, 35), 2),
             "seats": 6,
             "shared": False
         },
@@ -118,7 +118,7 @@ async def get_uber_rides(srclat, srclon, destlat, destlon):
             "name": "Uber Pool",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.uniform(5, 15),
+            "price": round(random.uniform(5, 15), 2),
             "seats": 4,
             "shared": True
         }
@@ -133,7 +133,7 @@ async def get_lyft_rides(srclat, srclon, destlat, destlon):
             "name": "Lyft",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.uniform(15, 25),
+            "price": round(random.uniform(15, 25), 2),
             "seats": 3,
             "shared": False
         },
@@ -142,7 +142,7 @@ async def get_lyft_rides(srclat, srclon, destlat, destlon):
             "name": "Lyft XL",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.uniform(25, 35),
+            "price": round(random.uniform(25, 35), 2),
             "seats": 5,
             "shared": False
         },
@@ -151,7 +151,7 @@ async def get_lyft_rides(srclat, srclon, destlat, destlon):
             "name": "Lyft Shared",
             "pickup": random_time_in_range(5, 10),
             "arrival": random_time_in_range(15, 30),
-            "price": random.uniform(5, 15),
+            "price": round(random.uniform(5, 15), 2),
             "seats": 4,
             "shared": True
         }
