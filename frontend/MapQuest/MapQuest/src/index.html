@@ -84,11 +84,9 @@
         <div style="margin: 40px", id="map"></div>
     </span>
     
-    <script>
-        var results = placeSearch.getVal();
-        console.log(results);
-    </script>
 
+    <div id = "isaboveaverage"></div>
+    
     <!--Table Headers-->
     <table class="table table-striped">
         <tr class="bg-info">
@@ -109,78 +107,16 @@
     <input type="reset" onclick="reset();" />
 
 
-    <!--Scripts for building HTML table with JSON Data-->
-    <script>
-        var myArray = [
-            { 'provider': 'Lyft', 'name': 'ride 1', 'pickup': '5:20', 'arrival': '5:10', 'price': 50, 'seats': 1, 'shared': true },
-            { 'provider': 'Uber', 'name': 'ride 2', 'pickup': '5:20', 'arrival': '5:20', 'price': 10, 'seats': 3, 'shared': true },
-            { 'provider': 'Bird', 'name': 'ride 3', 'pickup': '5:20', 'arrival': '5:30', 'price': 5, 'seats': 2, 'shared': true },
-        ]
-
-        /*table sorting functionality*/
-        $('th').on('click', function () {
-            var column = $(this).data('column')
-            var order = $(this).data('order')
-            var text = $(this).html()
-            text = text.substring(0, text.length - 1)
-
-
-            if (order == 'desc') {
-                $(this).data('order', "asc")
-                myArray = myArray.sort((a, b) => a[column] > b[column] ? 1 : -1)
-                text += '&#9660'
-            } else {
-                $(this).data('order', "desc")
-                myArray = myArray.sort((a, b) => a[column] < b[column] ? 1 : -1)
-                text += '&#9650'
-            }
-            $(this).html(text)
-            buildTable(myArray)
-        })
-
-        buildTable(myArray)
-
-        /*Function that Builds the Table from JSON array*/
-        function buildTable(data) {
-            var table = document.getElementById('myTable')
-            table.innerHTML = ''
-
-            for (var i = 0; i < data.length; i++) {
-                if(data[i].isaboveavg == true){
-                    var row =  <tr>
-                                            <td style="color:red"> ${data[i].provider}</td>
-                                            <td style="color:red"> ${data[i].name}</td>
-                                            <td style="color:red"> ${data[i].pickup}</td>
-                                            <td style="color:red"> ${data[i].arrival}</td>
-                                            <td style="color:red"> ${data[i].price}</td>
-                                            <td style="color:red"> ${data[i].seats}</td>
-                                            <td style="color:red"> ${data[i].shared}</td>
-                                        </tr>
-                table.innerHTML += row 
-                }
-                else{
-                    var row =  <tr>
-                                            <td> ${data[i].provider}</td>
-                                            <td> ${data[i].name}</td>
-                                            <td> ${data[i].pickup}</td>
-                                            <td> ${data[i].arrival}</td>
-                                            <td> ${data[i].price}</td>
-                                            <td> ${data[i].seats}</td>
-                                            <td> ${data[i].shared}</td>
-                                        </tr>
-                table.innerHTML += row
-                }
-            }
-        }
-
-    </script>
-
 
     <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
 
 
     <!--Scripts to build the map and produce a route-->
     <script>
+        var results;
+        var isaboveaverage;
+
+
         L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
         var startInput;
         var endInput;
@@ -286,7 +222,9 @@
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
                     // use this to reference the local API
                     getRoute(startLat, startLon, endLat, endLon);
-
+                    results = getResults(startLat, startLon, endLat, endLon);
+                    console.log(results);
+                    isaboveaverage = getAboveAverage(startLat, startLon, endLat, endLon);
                     // comment out the getRouteTest() function when done testing
                     // getRouteTest(startCord, endCord);
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -333,6 +271,7 @@
             });
         }
 
+        /*
         // testing output of route API
         const route_url = "http://www.mapquestapi.com/directions/v2/route";
         function getRouteTest(sCord, eCord) {
@@ -366,6 +305,7 @@
                 console.log(error);
             });
         }
+        */
 
         // plot maneuver points on map to display route
         function plotRoute(rLats, rLons) {
@@ -419,6 +359,106 @@
         function reset() {
             location.reload();
         }
+
+
+/*-------Scripts for building HTML table with JSON Data---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+   
+        function getResults(sLat, sLon, eLat, eLon) {
+            axios.get(api_url, {
+                params: {
+                    srclat: sLat,
+                    srclon: sLon,
+                    destlat: eLat,
+                    destlon: eLon
+                }
+            })
+                .then(function(response) {
+                    console.log(response);
+                    buildTable(response);
+                    
+                    return response.data.results;
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        }        
+
+        function getAboveAverage(sLat, sLon, eLat, eLon) {
+            axios.get(api_url , {
+                params: {
+                    srclat: sLat,
+                    srclon: sLon,
+                    destlat: eLat,
+                    destlon: eLon
+                }
+            })
+                .then(function(response) {
+                    buildAboveAverage(response);
+                    // save JSON array
+                    return response.data["is-above-average"];
+                })
+                .catch(function(error) {
+                    console.log(error);
+                });
+        }        
+
+        /*table sorting functionality*/
+        $('th').on('click', function () {
+            var column = $(this).data('column')
+            var order = $(this).data('order')
+            var text = $(this).html()
+            text = text.substring(0, text.length - 1)
+
+
+            if (order == 'desc') {
+                $(this).data('order', "asc")
+                results = results.sort((a, b) => a[column] > b[column] ? 1 : -1)
+                text += '&#9660'
+            } else {
+                $(this).data('order', "desc")
+                results = results.sort((a, b) => a[column] < b[column] ? 1 : -1)
+                text += '&#9650'
+            }
+            $(this).html(text)
+            buildTable(results)
+        })
+
+
+        /*Function that Builds the Div from above average array*/
+        function buildAboveAverage(aboveAverage) {
+            var div = document.getElementById('isaboveaverage')
+            if(aboveAverage === true){
+                div.innerHTML = '<h2>Prices are currently above average</h2>'
+            }
+            else{
+                div.innerHTML = '<h2>Prices are currently normal</h2>'
+            }
+        }
+
+        /*Function that Builds the Table from JSON array*/
+        function buildTable(output) {
+            console.log("buildTable is running");
+            console.log(output.data.results[0].provider);
+            console.log(output.length);
+            var table = document.getElementById('myTable');
+            table.innerHTML = '';
+            for (var i = 0; i < output.data.results.length; i++) {    
+                console.log(i);
+                console.log("for loop is running");         
+                    var row = ` <tr>
+                                            <td> ${output.data.results[i].provider}</td>
+                                            <td> ${output.data.results[i].name}</td>
+                                            <td> ${output.data.results[i].pickup}</td>
+                                            <td> ${output.data.results[i].arrival}</td>
+                                            <td> ${output.data.results[i].price}</td>
+                                            <td> ${output.data.results[i].seats}</td>
+                                            <td> ${output.data.results[i].shared}</td>
+                                        </tr>`
+                table.innerHTML += row
+            }
+        }
+
+        
 
     </script>
 </body>
