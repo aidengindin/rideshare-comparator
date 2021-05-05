@@ -221,10 +221,13 @@
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
                     // use this to reference the local API
+                    // getResponse();
+
                     getRoute(startLat, startLon, endLat, endLon);
-                    results = getResults(startLat, startLon, endLat, endLon);
-                    console.log(results);
-                    isaboveaverage = getAboveAverage(startLat, startLon, endLat, endLon);
+                    // results = getResults(startLat, startLon, endLat, endLon);
+                    // console.log(results);
+                    // isaboveaverage = getAboveAverage(startLat, startLon, endLat, endLon);
+
                     // comment out the getRouteTest() function when done testing
                     // getRouteTest(startCord, endCord);
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -236,8 +239,37 @@
 
         }
 
-        // get the maneuver points of route provided by local API
         const api_url = 'http://127.0.0.1:5000/';
+        function getResponse(sLat, sLon, eLat, eLon) {
+            axios.get(api_url, {
+                params: {
+                    srclat: sLat,
+                    srclon: sLon,
+                    destlat: eLat,
+                    destlon,eLon
+                }
+            })
+            .then(function(response){
+                console.log(response)
+                routing(response);
+                buildAboveAverage(response);
+                buildTable(response);
+            })
+        }
+
+        function routing(apiResponse) {
+            var maneuverComponents = response.data.path.legs[0].maneuvers;
+            for(var i = 0; i < maneuverComponents.length; i++) {
+                routeComponentsLat[i] = maneuverComponents[i].startPoint.lat;
+                routeComponentsLon[i] = maneuverComponents[i].startPoint.lng;
+                console.log("index: " + i);
+                console.log(routeComponentsLat[i]);
+                console.log(routeComponentsLon[i]);
+            }
+            plotRoute(routeComponentsLat, routeComponentsLon);
+        }
+
+        // get the maneuver points of route provided by local API
         const PORT = 5000;
         const HOST = '127.0.0.1';
         function getRoute(sLat, sLon, eLat, eLon) {
@@ -251,6 +283,8 @@
             })
             .then(function(response){
                 console.log(response);
+                buildAboveAverage(response);
+                buildTable(response);
 
                 // get lat and lon cords for each intersection
                 var maneuverComponents = response.data.path.legs[0].maneuvers;
