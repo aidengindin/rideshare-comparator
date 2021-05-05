@@ -253,7 +253,7 @@
                 console.log(response);
 
                 // get lat and lon cords for each intersection
-                var maneuverComponents = response.data.path.route.legs[0].maneuvers;
+                var maneuverComponents = response.data.path.legs[0].maneuvers;
 
                 for(var i = 0; i < maneuverComponents.length; i++) {
                     routeComponentsLat[i] = maneuverComponents[i].startPoint.lat;
