@@ -1,7 +1,5 @@
 .mq-place-search {
     overflow-y: visible;
-    margin-bottom: 5%;
-    z-index: 9999;
 }
 
 .mq-dropdown-menu {
@@ -10,9 +8,9 @@
 
 #map {
     border-radius: 25px;
+    z-index: 0;
 }
 
 .wrapper {
     position: relative;
 }
-
