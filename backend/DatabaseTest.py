@@ -42,7 +42,7 @@ def isHigher(scrLat, srcLon, destLat, destLon, distance, results):
         pString = result["pickup"]
         pickup = dt.datetime.fromisoformat(pString)
         aString = result["arrival"]
-        arrival = dt.datetime.fromisoformat(pString)
+        arrival = dt.datetime.fromisoformat(aString)
         mc.execute("INSERT INTO ride(name, price, seats, shared, pickup, arrival) VALUES(%s,%s,%s,%s,%s,%s)", (name, price, seats, shared, pickup.time(), arrival.time()))
         lastrid = mc.lastrowid
         mc.execute("INSERT INTO generates(reqid, rid) VALUES(%s, %s)",(lastreqid, lastrid))
@@ -141,3 +141,4 @@ def testTrue():
     print(isHigher(100.231,243.21, 200.451, 354.213,16.23,dicList2))
     checkTables()
     clearTables()
+
