@@ -1,0 +1,19 @@
+<script src="https://api.mqcdn.com/sdk/place-search-js/v1.0.0/place-search.js"></script>
+<link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/place-search-js/v1.0.0/place-search.css"/>
+
+<input type="search" id="place-search-input" placeholder="Start Searching..."/>
+
+<script>
+    placeSearch({
+        key: '7Tzx5DPWIJ3ophO5LqK2dGrMatMXEJXy',                   // 'h9DlTmYOaKmZVdyDa1Z6qFu1X1tDawOW' ObOOcgLBayNvuhkFMUAKvmh5y7pXteON,
+        container: document.querySelector('#place-search-input'),
+        useDeviceLocation: false,
+        collection: [
+            'poi',
+            'airport',
+            'address',
+            'adminArea',
+        ]
+    });
+
+</script>
