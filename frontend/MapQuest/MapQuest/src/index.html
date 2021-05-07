@@ -19,6 +19,11 @@
 
     <link type="text/javascript" rel="stylesheet" href="https://api.mqcdn.com/sdk/place-search-js/v1.0.0/place-search.css" />
 
+    <script type="text/javascript" src="geocode.js"></script>
+    <script type="text/javascript" src="getapidata.js"></script>
+    <script type="text/javascript" src="route.js"></script>
+
+
     <title>Rideshare Comparator</title>
 
     <!--place.js code-->
@@ -111,7 +116,7 @@
     <!--Scripts to build the map and produce a route-->
     <script>
         L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
-        const api_url = 'http://127.0.0.1:5000/';
+        //const api_url = 'http://127.0.0.1:5000/';
 
         var results;
         var isaboveaverage;
@@ -159,102 +164,6 @@
             },
         });
 
-        // change user input into latitude and longitude cordinates through Geocoding API provided by MapQuest
-        const geocode_url = "http://www.mapquestapi.com/geocoding/v1/address";
-        function getLatLon(startLoc, destLoc) {
-            var startLat, startLon, endLat, endLon;
-            axios.get(geocode_url, {
-                params: {
-                    key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
-                    location: startLoc
-                }
-            })
-            .then(function(response) {
-                console.log(response);
-                // save starting location's latitude and longitude cordinates
-                startLat = response.data.results[0].locations[0].latLng.lat;
-                startLon = response.data.results[0].locations[0].latLng.lng;
-            })
-            .catch(function(error) {
-                console.log(error);
-                alert("Please Enter a Valid Address");
-            });
-
-            axios.get(geocode_url, {
-                params: {
-                    key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
-                    location: destLoc
-                }
-            })
-            .then(function(response) {
-                console.log(response);
-                // save destinations latitude and longitude cordinates
-                endLat = response.data.results[0].locations[0].latLng.lat;
-                endLon = response.data.results[0].locations[0].latLng.lng;
-            })
-            .then(function(response) {
-                var startCord = [startLat, startLon];
-                var endCord = [endLat, endLon];
-                console.log("starting cords: " + startCord);
-                console.log("destination cords: " + endCord);
-                getData(startLat, startLon, endLat, endLon);
-                })
-                .catch(function(error) {
-                    console.log(error);
-                    alert("Please Enter A Valid Address");
-                });
-        }
-
-        function getData(sLat, sLon, eLat, eLon) {
-            axios.get(api_url, {
-                params: {
-                    srclat: sLat,
-                    srclon: sLon,
-                    destlat: eLat,
-                    destlon: eLon
-                }
-            })
-            .then(function(response){
-                console.log(response);
-                routing(response);
-                buildAboveAverage(response);
-                buildTable(response);
-            })
-            .catch(function(error) {
-                console.log(error);
-                alert(error);
-            })
-        }
-
-        // get the maneuver points of route provided by local API
-        function routing(apiResponse) {
-            var maneuverComponents = apiResponse.data.path.legs[0].maneuvers;
-            var routeComponentsLat = [];
-            var routeComponentsLon = [];
-            for(var i = 0; i < maneuverComponents.length; i++) {
-                routeComponentsLat[i] = maneuverComponents[i].startPoint.lat;
-                routeComponentsLon[i] = maneuverComponents[i].startPoint.lng;
-                var maneuverCord = [routeComponentsLat[i], routeComponentsLon[i]];
-                console.log("maneuver " + i + " at " + maneuverCord);
-            }
-            plotRoute(routeComponentsLat, routeComponentsLon);
-        }
-
-        // plot maneuver points on map to display route
-        function plotRoute(rLats, rLons) {
-            var maneuverList = [];
-
-            for(var i = 1; i < rLats.length - 1; i++) {
-                maneuverList[i] = L.latLng([rLats[i], rLons[i]]);
-            }
-
-            routeDeveloper.route({
-                start: L.latLng([rLats[0], rLons[0]]),
-                end: L.latLng([rLats[rLats.length - 1], rLons[rLons.length - 1]]),
-                waypoints: maneuverList
-            });
-        }
-
         // grabs the user's input
         function getInput() {
             var startInput = document.getElementById("search-input").value;
@@ -294,10 +203,10 @@
         function buildAboveAverage(aboveAverage) {
             var div = document.getElementById('isaboveaverage')
             if(aboveAverage === true){
-                div.innerHTML = '<h2>Prices are currently above average</h2>'
+                div.innerHTML = '<h2>Prices Are Currently Above Average</h2>'
             }
             else{
-                div.innerHTML = '<h2>Prices are currently normal</h2>'
+                div.innerHTML = '<h2>Prices Are Currently Normal</h2>'
             }
         }
 
@@ -319,7 +228,6 @@
                 table.innerHTML += row
             }
         }
-        
     </script>
 </body>
 </html>
