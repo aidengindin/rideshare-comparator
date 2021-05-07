@@ -16,11 +16,12 @@ app = flask.Flask(__name__)
 
 cors = CORS(app)
 
+
 # Main function to respond to client requests
 @app.route("/", methods=["GET"])
 def home():
     query = request.args
-    
+
     srclat = srclon = destlat = destlon = None
     if "srclat" in query:
         srclat = query["srclat"]
@@ -33,16 +34,18 @@ def home():
 
     # return an error if the query doesn't contain the required parameters
     if is_any_none(srclat, srclon, destlat, destlon):
-        return json.dumps(generateError("Query did not contain all required arguments")), 400, {"Content-Type": "application/json"}
+        return json.dumps(generateError("Query did not contain all required arguments")), 400, {
+            "Content-Type": "application/json"}
 
     response = asyncio.run(build_response(srclat, srclon, destlat, destlon))
     return json.dumps(response), {"Content-Type": "application/json"}
+
 
 # Build a response to send to the client
 # asynchronously waiting for external APIs
 async def build_response(srclat, srclon, destlat, destlon):
     response = {}
-    
+
     response["results"] = await get_rides(srclat, srclon, destlat, destlon)
     path = await get_route(srclat, srclon, destlat, destlon)
     response["path"] = path["route"]
@@ -51,8 +54,9 @@ async def build_response(srclat, srclon, destlat, destlon):
     if math.isnan(distance):
         return generateError("no path from specified start location to end location")
 
-    response["is-above-avg"] = db.isHigher(srclat, srclon, destlat, destlon, distance, response["results"])
+    response["is_above_avg"] = db.isHigher(srclat, srclon, destlat, destlon, distance, response["results"])
     return response
+
 
 # Test if any argument is equal to None
 def is_any_none(*argv):
@@ -60,6 +64,7 @@ def is_any_none(*argv):
         if arg == None:
             return True
     return False
+
 
 # Generate an error JSON response
 def generateError(reason):
@@ -72,16 +77,20 @@ def generateError(reason):
         ]
     }
 
+
 # Get route data from MapQuest
 async def get_route(srclat, srclon, destlat, destlon):
     keyfile = open("mapquest-key", "r")
     key = keyfile.read()
     keyfile.close()
 
-    response = requests.get("http://www.mapquestapi.com/directions/v2/route?key={}&from={}&to={}".format(key, locstring(srclat, srclon), locstring(destlat, destlon)))
+    response = requests.get(
+        "http://www.mapquestapi.com/directions/v2/route?key={}&from={}&to={}".format(key, locstring(srclat, srclon),
+                                                                                     locstring(destlat, destlon)))
     if response.ok:
         return response.json()
     return generateError("MapQuest API responded with an error: " + response.reason)
+
 
 # Extract the distance from a route dictionary
 # If the route does not contain a distance, the function will return NaN
@@ -90,6 +99,7 @@ def get_distance(route):
         return route["distance"]
     except KeyError:
         return float("NaN")
+
 
 # Get available rides from Uber
 # Since we don't currently have Uber API access, this just generates dummy data
@@ -124,6 +134,7 @@ async def get_uber_rides(srclat, srclon, destlat, destlon):
         }
     ]
 
+
 # Get available rides from Lyft
 # Since we don't currently have Uber API access, this just generates dummy data
 async def get_lyft_rides(srclat, srclon, destlat, destlon):
@@ -157,14 +168,17 @@ async def get_lyft_rides(srclat, srclon, destlat, destlon):
         }
     ]
 
+
 async def get_rides(srclat, srclon, destlat, destlon):
     uber_rides = await get_uber_rides(srclat, srclon, destlat, destlon)
     lyft_rides = await get_lyft_rides(srclat, srclon, destlat, destlon)
     return uber_rides + lyft_rides
 
+
 # Convert a lat/lon pair to a string
 def locstring(lat, lon):
     return str(lat) + "," + str(lon)
+
 
 # Choose a time uniformly at random between (current time + start_offset) and (current_time + end_offset)
 # Offsets are specified in minutes
@@ -172,9 +186,10 @@ def random_time_in_range(start_offset, end_offset):
     offset = datetime.timedelta(seconds=(random.uniform(start_offset, end_offset) * 60))
     return (datetime.datetime.now() + offset).isoformat()
 
+
 if __name__ == "__main__":
-    PORT = 5000         # port to run the server on
-    DEBUG = False       # whether to run in debug mode
+    PORT = 5000  # port to run the server on
+    DEBUG = False  # whether to run in debug mode
     SSL_CONTEXT = None  # indicates whether to use HTTPS
 
     if "--debug" in sys.argv:

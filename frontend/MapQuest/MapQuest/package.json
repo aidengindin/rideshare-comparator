@@ -1,6 +1,7 @@
 {
     "name": "map-quest",
     "version": "0.1.0",
+    "type": "module",
     "private": true,
     "scripts": {
         "serve": "vue-cli-service serve",
@@ -12,6 +13,7 @@
         "name": ""
     },
     "dependencies": {
+        "axios": "^0.21.1",
         "vue": "2.5.17"
     },
     "devDependencies": {

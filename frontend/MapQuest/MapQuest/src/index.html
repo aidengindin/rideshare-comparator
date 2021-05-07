@@ -19,7 +19,12 @@
 
     <link type="text/javascript" rel="stylesheet" href="https://api.mqcdn.com/sdk/place-search-js/v1.0.0/place-search.css" />
 
-    <title>FrontEnd</title>
+    <script type="text/javascript" src="geocode.js"></script>
+    <script type="text/javascript" src="getapidata.js"></script>
+    <script type="text/javascript" src="route.js"></script>
+
+
+    <title>Rideshare Comparator</title>
 
     <!--place.js code-->
     <script type="text/javascript">
@@ -106,27 +111,16 @@
     <!--reset button-->
     <input type="reset" onclick="reset();" />
 
-
-
     <!-------------------------------------------------------------------------------------------------------------------------------------------------------------->
-
 
     <!--Scripts to build the map and produce a route-->
     <script>
+        L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
+        //const api_url = 'http://127.0.0.1:5000/';
+
         var results;
         var isaboveaverage;
-
-
-        L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
-        var startInput;
-        var endInput;
-        var startLat;
-        var startLon;
-        var endLat;
-        var endLon;
-        var routeComponentsLat = [];
-        var routeComponentsLon = [];
-
+      
         // create the map
         var map = L.mapquest.map('map', {
             center: [41.5043, -81.6084],
@@ -170,223 +164,11 @@
             },
         });
 
-        // basic route finder using MapQuest API (not used)
-        function getDirections(startLoc, destLoc) {
-           routeDeveloper.route({
-               start: startLoc,
-               end: destLoc
-           });
-        }
-
-        // change user input into latitude and longitude cordinates through Geocoding API provided by MapQuest
-        const geocode_url = "http://www.mapquestapi.com/geocoding/v1/address";
-        function getLatLon(startLoc, destLoc) {
-            axios.get(geocode_url, {
-                params: {
-                    key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
-                    location: startLoc
-                }
-            })
-                .then(function(response) {
-                    console.log(response);
-                    // save starting location's latitude and longitude cordinates
-                    startLat = response.data.results[0].locations[0].latLng.lat;
-                    startLon = response.data.results[0].locations[0].latLng.lng;
-                    console.log(startLat);
-                    console.log(startLon);
-                })
-                .catch(function(error) {
-                    console.log(error);
-                });
-
-            axios.get(geocode_url, {
-                params: {
-                    key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
-                    location: destLoc
-                }
-            })
-                .then(function(response) {
-                    console.log(response);
-                    // save destinations latitude and longitude cordinates
-                    endLat = response.data.results[0].locations[0].latLng.lat;
-                    endLon = response.data.results[0].locations[0].latLng.lng;
-                    console.log(endLat);
-                    console.log(endLon);
-                })
-                .then(function(response) {
-                    var startCord = [startLat, startLon];
-                    var endCord = [endLat, endLon];
-                    console.log("start cords: " + startCord);
-                    console.log("destination cords: " + endCord);
-
-/*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-                    // use this to reference the local API
-                    // getResponse();
-
-                    getRoute(startLat, startLon, endLat, endLon);
-                    // results = getResults(startLat, startLon, endLat, endLon);
-                    // console.log(results);
-                    // isaboveaverage = getAboveAverage(startLat, startLon, endLat, endLon);
-
-                    // comment out the getRouteTest() function when done testing
-                    // getRouteTest(startCord, endCord);
-/*--------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-                
-                })
-                .catch(function(error) {
-                    console.log(error);
-                });
-
-        }
-
-        const api_url = 'http://127.0.0.1:5000/';
-        function getResponse(sLat, sLon, eLat, eLon) {
-            axios.get(api_url, {
-                params: {
-                    srclat: sLat,
-                    srclon: sLon,
-                    destlat: eLat,
-                    destlon,eLon
-                }
-            })
-            .then(function(response){
-                console.log(response)
-                routing(response);
-                buildAboveAverage(response);
-                buildTable(response);
-            })
-        }
-
-        function routing(apiResponse) {
-            var maneuverComponents = response.data.path.legs[0].maneuvers;
-            for(var i = 0; i < maneuverComponents.length; i++) {
-                routeComponentsLat[i] = maneuverComponents[i].startPoint.lat;
-                routeComponentsLon[i] = maneuverComponents[i].startPoint.lng;
-                console.log("index: " + i);
-                console.log(routeComponentsLat[i]);
-                console.log(routeComponentsLon[i]);
-            }
-            plotRoute(routeComponentsLat, routeComponentsLon);
-        }
-
-        // get the maneuver points of route provided by local API
-        const PORT = 5000;
-        const HOST = '127.0.0.1';
-        function getRoute(sLat, sLon, eLat, eLon) {
-            axios.get(api_url, {                                                    //hard code localhost port 5000
-                params: {
-                    srclat: sLat,
-                    srclon: sLon,
-                    destlat: eLat,
-                    destlon: eLon
-                }
-            })
-            .then(function(response){
-                console.log(response);
-                buildAboveAverage(response);
-                buildTable(response);
-
-                // get lat and lon cords for each intersection
-                var maneuverComponents = response.data.path.legs[0].maneuvers;
-
-                for(var i = 0; i < maneuverComponents.length; i++) {
-                    routeComponentsLat[i] = maneuverComponents[i].startPoint.lat;
-                    routeComponentsLon[i] = maneuverComponents[i].startPoint.lng;
-                    console.log("index: " + i);
-                    console.log(routeComponentsLat[i]);
-                    console.log(routeComponentsLon[i]);
-                }                
-            })
-            .then(function(response){
-                plotRoute(routeComponentsLat, routeComponentsLon);
-            })
-            .catch(function(error){
-                console.log(error);
-            });
-        }
-
-        /*
-        // testing output of route API
-        const route_url = "http://www.mapquestapi.com/directions/v2/route";
-        function getRouteTest(sCord, eCord) {
-            // console.log("running getRouteTest");
-            // console.log(sCord);
-            // console.log(eCord);
-            axios.get(route_url, {
-                params: {
-                    key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
-                    from: startInput,          // L.latLng(sCord),
-                    to: endInput            // L.latLng(eCord)
-                }
-            })
-            .then(function(response){
-                console.log(response);
-                // console.log("route responded");
-                // get lat and lon cords for each intersection
-                var maneuverComponents = response.data.route.legs[0].maneuvers;
-
-                for(var i = 0; i < maneuverComponents.length; i++) {
-                    routeComponentsLat[i] = maneuverComponents[i].startPoint.lat;
-                    routeComponentsLon[i] = maneuverComponents[i].startPoint.lng;
-                    console.log("index: " + i);
-                    console.log(routeComponentsLat[i] + ", " + routeComponentsLon[i]);
-                }                
-            })
-            .then(function(response){
-                plotRoute(routeComponentsLat, routeComponentsLon);
-            })
-            .catch(function(error){
-                console.log(error);
-            });
-        }
-        */
-
-        // plot maneuver points on map to display route
-        function plotRoute(rLats, rLons) {
-            var maneuverList = [];
-
-            for(var i = 1; i < rLats.length - 1; i++) {
-                maneuverList[i] = L.latLng([rLats[i], rLons[i]]);
-            }
-
-            routeDeveloper.route({
-                start: L.latLng([rLats[0], rLons[0]]),
-                end: L.latLng([rLats[rLats.length - 1], rLons[rLons.length - 1]]),
-                waypoints: maneuverList
-            });
-        }
-
-        // for testing outputs
-        function printValues(startLat) {
-            console.log("printing");
-            // console.log(startLat);
-            // console.log(startLon);
-            // console.log(endLat);
-            // console.log(endLon);
-            // for(var i = 0; i < routeComponentsLat.length; i++) {
-            //     console.log(routeComponentsLat[i]);
-            // }
-        }
-
-        // the "main" function that grabs the user's input
+        // grabs the user's input
         function getInput() {
-            startInput = document.getElementById("search-input").value;
-            endInput = document.getElementById("destination-input").value;
-
-            //resetMap();
-
-            // creates basic route
-            //getDirections(startInput, endInput);
-
-            // starts the process of creating our route 
+            var startInput = document.getElementById("search-input").value;
+            var endInput = document.getElementById("destination-input").value;
             getLatLon(startInput, endInput);
-
-            // prints values for testing purposes
-            //printValues();
-        }
-
-        function resetMap() {
-            map.removeLayer(routeDeveloper);
         }
 
         // refresh the page
@@ -394,48 +176,8 @@
             location.reload();
         }
 
-
 /*-------Scripts for building HTML table with JSON Data---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
    
-        function getResults(sLat, sLon, eLat, eLon) {
-            axios.get(api_url, {
-                params: {
-                    srclat: sLat,
-                    srclon: sLon,
-                    destlat: eLat,
-                    destlon: eLon
-                }
-            })
-                .then(function(response) {
-                    console.log(response);
-                    buildTable(response);
-                    
-                    return response.data.results;
-                })
-                .catch(function(error) {
-                    console.log(error);
-                });
-        }        
-
-        function getAboveAverage(sLat, sLon, eLat, eLon) {
-            axios.get(api_url , {
-                params: {
-                    srclat: sLat,
-                    srclon: sLon,
-                    destlat: eLat,
-                    destlon: eLon
-                }
-            })
-                .then(function(response) {
-                    buildAboveAverage(response);
-                    // save JSON array
-                    return response.data["is-above-average"];
-                })
-                .catch(function(error) {
-                    console.log(error);
-                });
-        }        
-
         /*table sorting functionality*/
         $('th').on('click', function () {
             var column = $(this).data('column')
@@ -457,28 +199,24 @@
             buildTable(results)
         })
 
-
         /*Function that Builds the Div from above average array*/
         function buildAboveAverage(aboveAverage) {
+            console.log("is_above_avg: " + aboveAverage.data.is_above_avg);
             var div = document.getElementById('isaboveaverage')
-            if(aboveAverage === true){
-                div.innerHTML = '<h2>Prices are currently above average</h2>'
+            if(aboveAverage.data.is_above_average === true){
+                div.innerHTML = '<h2>Prices Are Currently Above Average</h2>'
             }
             else{
-                div.innerHTML = '<h2>Prices are currently normal</h2>'
+                div.innerHTML = '<h2>Prices Are Currently Normal</h2>'
             }
         }
 
         /*Function that Builds the Table from JSON array*/
         function buildTable(output) {
-            console.log("buildTable is running");
-            console.log(output.data.results[0].provider);
-            console.log(output.length);
             var table = document.getElementById('myTable');
             table.innerHTML = '';
             for (var i = 0; i < output.data.results.length; i++) {    
-                console.log(i);
-                console.log("for loop is running");         
+                console.log("reading result: " + i);
                     var row = ` <tr>
                                             <td> ${output.data.results[i].provider}</td>
                                             <td> ${output.data.results[i].name}</td>
@@ -491,9 +229,6 @@
                 table.innerHTML += row
             }
         }
-
-        
-
     </script>
 </body>
 </html>

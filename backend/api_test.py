@@ -18,7 +18,7 @@ class TestAPI(unittest.TestCase):
         try:
             self.assertIsInstance(response["results"], list)
             self.assertIsInstance(response["path"], dict)
-            self.assertIsInstance(response["is-above-avg"], bool)
+            self.assertIsInstance(response["is_above_avg"], bool)
         except KeyError as e:
             self.fail("build_response raised KeyError: " + str(e))
         
