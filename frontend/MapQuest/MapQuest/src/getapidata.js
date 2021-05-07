@@ -29,9 +29,6 @@ function getData(sLat, sLon, eLat, eLon) {
     })
     .then(function(response){
         console.log(response);
-        return response;
-    })
-    .then(function(response){
         routing(response);
         buildAboveAverage(response);
         buildTable(response);

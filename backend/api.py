@@ -54,7 +54,7 @@ async def build_response(srclat, srclon, destlat, destlon):
     if math.isnan(distance):
         return generateError("no path from specified start location to end location")
 
-    response["is-above-avg"] = db.isHigher(srclat, srclon, destlat, destlon, distance, response["results"])
+    response["is_above_avg"] = db.isHigher(srclat, srclon, destlat, destlon, distance, response["results"])
     return response
 
 

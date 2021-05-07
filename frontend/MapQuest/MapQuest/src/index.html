@@ -201,8 +201,9 @@
 
         /*Function that Builds the Div from above average array*/
         function buildAboveAverage(aboveAverage) {
+            console.log("is_above_avg: " + aboveAverage.data.is_above_avg);
             var div = document.getElementById('isaboveaverage')
-            if(aboveAverage === true){
+            if(aboveAverage.data.is_above_average === true){
                 div.innerHTML = '<h2>Prices Are Currently Above Average</h2>'
             }
             else{
