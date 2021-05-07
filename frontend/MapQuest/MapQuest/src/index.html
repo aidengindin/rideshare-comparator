@@ -19,7 +19,7 @@
 
     <link type="text/javascript" rel="stylesheet" href="https://api.mqcdn.com/sdk/place-search-js/v1.0.0/place-search.css" />
 
-    <title>FrontEnd</title>
+    <title>Rideshare Comparator</title>
 
     <!--place.js code-->
     <script type="text/javascript">
@@ -235,6 +235,7 @@
                 })
                 .catch(function(error) {
                     console.log(error);
+                    alert("Please Enter A Valid Address");
                 });
 
         }
@@ -250,7 +251,7 @@
                 }
             })
             .then(function(response){
-                console.log(response)
+                console.log(response);
                 routing(response);
                 buildAboveAverage(response);
                 buildTable(response);
@@ -302,6 +303,7 @@
             })
             .catch(function(error){
                 console.log(error);
+                alert("Please Enter A Valid Address");
             });
         }
 
