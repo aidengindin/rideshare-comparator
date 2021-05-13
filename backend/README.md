@@ -50,3 +50,14 @@ You can access it locally at `localhost:5000`.
 When finished, type `Ctrl+C` to shut down the server and deactivate the virtualenv as described above.
 
 To run the server with HTTPS, use the `--https` flag.
+
+
+# Viewing Database Data
+
+Ensure that the databaseKey is within the backend folder.
+In order to view the data within our database, you need to run the following command:
+```
+$ python3 databaseData.py
+```
+From that, the data.txt file will be updated with the most recent tables from the database. 
+
