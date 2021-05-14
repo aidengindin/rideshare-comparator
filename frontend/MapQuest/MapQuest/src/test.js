@@ -128,6 +128,7 @@ function buildAboveAverage(apiResponse) {
 // Function that Builds the Table from JSON array
 function buildTable(apiResponse) {
     var response = apiResponse.data.results[0];
+
     if(typeof response.provider === "string" && response.provider === "Uber"){
         console.log("PASS: the provider of the first entree is the string Uber");
     }
