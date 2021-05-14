@@ -18,6 +18,9 @@ In order to be able to see the data being stored in the database, databaseData.p
 
 Instructions on setup and running the API are described in detail in `backend/README.md` 
 
+
 # Frontend
 
-Within the frontend folder lies the code that built the front end application for the application... ALVIN add here
+Within the frontend folder lies the code that built the front end application for the application.
+
+In order to launch the application, you must navigate to `fronted/MapQuest/MapQuest/src/index.html` after properly installing the required packages, as well as ensure the backend API is launched and running properly (as described in the backend README)
