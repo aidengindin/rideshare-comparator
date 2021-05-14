@@ -79,12 +79,6 @@
         <input type="submit" onclick="getInput();" />
         <input type="reset" onclick="reset();"><br><br>
 
-        <!--<form id="prompt" onsubmit="return false;">
-            <input placeholder="Starting Location" type="text" id="userStart" />
-            <input placeholder="Destination" type="text" id="userEnd" />
-            <input type="submit" onclick="getInput();" />
-        </form>-->
-
         <!--build map-->
         <div style="margin: 40px", id="map"></div>
     </span>
@@ -120,6 +114,7 @@
 
         var results;
         var isaboveaverage;
+        var apiData;
       
         // create the map
         var map = L.mapquest.map('map', {
@@ -167,61 +162,82 @@
         // grabs the user's input
         function getInput() {
             var startInput = document.getElementById("search-input").value;
-            var endInput = document.getElementById("destination-input").value;
-            getLatLon(startInput, endInput);
+            var destInput = document.getElementById("destination-input").value;
+            main(startInput, destInput);
         }
+        async function main(start, dest) {
+            var startLat, startLon, destLat, destLon;
+            let startResp = await getStart(start);
+            console.log(startResp);
+            startLat = startResp.results[0].locations[0].latLng.lat;
+            startLon = startResp.results[0].locations[0].latLng.lng;
+            let destResp = await getDest(dest);
+            console.log(destResp);
+            destLat = destResp.results[0].locations[0].latLng.lat;
+            destLon = destResp.results[0].locations[0].latLng.lng;
+            apiData = await getData(startLat, startLon, destLat, destLon);
+            console.log(apiData);
+            routing(apiData);
+            buildAboveAverage(apiData);
+            buildTable(apiData);
+
+            // table sorting function
+            $('th').on('click', function () {
+                var column = $(this).data('column')
+                var order = $(this).data('order')
+                var text = $(this).html()
+                text = text.substring(0, text.length - 1)
+
+                if (order == 'desc') {
+                    $(this).data('order', "asc")
+                    apiData.results = apiData.results.sort((a, b) => a[column] > b[column] ? 1 : -1)
+                    text += '&#9660'
+                } else {
+                    $(this).data('order', "desc")
+                    apiData.results = apiData.results.sort((a, b) => a[column] < b[column] ? 1 : -1)
+                    text += '&#9650'
+                }
+                $(this).html(text)
+                buildTable(apiData)
+            })
+        }
+            
 
         // change user input into latitude and longitude cordinates through Geocoding API provided by MapQuest
         const geocode_url = "http://www.mapquestapi.com/geocoding/v1/address";
-
-        function getLatLon(startLoc, destLoc) {
-            var startLat, startLon, endLat, endLon;
-            axios.get(geocode_url, {
+        
+        async function getStart(startLoc) {
+            let response = await axios.get(geocode_url, {
                 params: {
                     key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
                     location: startLoc
                 }
             })
-            .then(function(response) {
-                console.log(response);
-                // save starting location's latitude and longitude cordinates
-                startLat = response.data.results[0].locations[0].latLng.lat;
-                startLon = response.data.results[0].locations[0].latLng.lng;
-            })
             .catch(function(error) {
                 console.log(error);
                 alert("Please Enter a Valid Address");
             });
+            return response.data;
+        }
 
-            axios.get(geocode_url, {
+        async function getDest(destLoc) {
+            let response = await axios.get(geocode_url, {
                 params: {
                     key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
                     location: destLoc
                 }
             })
-            .then(function(response) {
-                console.log(response);
-                // save destinations latitude and longitude cordinates
-                endLat = response.data.results[0].locations[0].latLng.lat;
-                endLon = response.data.results[0].locations[0].latLng.lng;
-            })
-            .then(function(response) {
-                var startCord = [startLat, startLon];
-                var endCord = [endLat, endLon];
-                console.log("starting cords: " + startCord);
-                console.log("destination cords: " + endCord);
-                getData(startLat, startLon, endLat, endLon);
-            })
             .catch(function(error) {
                 console.log(error);
-                alert("Please Enter A Valid Address");
+                alert("Please Enter a Valid Address");
             });
+            return response.data;
         }
 
         // get data from local RESTful API
         const api_url = 'http://127.0.0.1:5000/';
-        function getData(sLat, sLon, eLat, eLon) {
-            axios.get(api_url, {
+        async function getData(sLat, sLon, eLat, eLon) {
+            let response = await axios.get(api_url, {
                 params: {
                     srclat: sLat,
                     srclon: sLon,
@@ -229,21 +245,18 @@
                     destlon: eLon
                 }
             })
-            .then(function(response){
-                console.log(response);
-                routing(response);
-                buildAboveAverage(response);
-                buildTable(response);
-            })
             .catch(function(error) {
                 console.log(error);
                 alert(error);
             });
+            return response.data;
         }
+
+/*-------Scripts for building route on map---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
         // get the maneuver points of route provided by local API
         function routing(apiResponse) {
-            var maneuverComponents = apiResponse.data.path.legs[0].maneuvers;
+            var maneuverComponents = apiResponse.path.legs[0].maneuvers;
             var routeComponentsLat = [];
             var routeComponentsLon = [];
             for(var i = 0; i < maneuverComponents.length; i++) {
@@ -277,32 +290,11 @@
 
 /*-------Scripts for building HTML table with JSON Data---------------------------------------------------------------------------------------------------------------------------------------------------------------*/
    
-        /*table sorting functionality*/
-        $('th').on('click', function () {
-            var column = $(this).data('column')
-            var order = $(this).data('order')
-            var text = $(this).html()
-            text = text.substring(0, text.length - 1)
-
-
-            if (order == 'desc') {
-                $(this).data('order', "asc")
-                results = results.sort((a, b) => a[column] > b[column] ? 1 : -1)
-                text += '&#9660'
-            } else {
-                $(this).data('order', "desc")
-                results = results.sort((a, b) => a[column] < b[column] ? 1 : -1)
-                text += '&#9650'
-            }
-            $(this).html(text)
-            buildTable(results)
-        })
-
         /*Function that Builds the Div from above average array*/
         function buildAboveAverage(aboveAverage) {
-            console.log("is_above_avg: " + aboveAverage.data.is_above_avg);
+            console.log("is_above_avg: " + aboveAverage.is_above_avg);
             var div = document.getElementById('isaboveaverage')
-            if(aboveAverage.data.is_above_average === true){
+            if(aboveAverage.is_above_average === true){
                 div.innerHTML = '<h2>Prices Are Currently Above Average</h2>'
             }
             else{
@@ -314,16 +306,16 @@
         function buildTable(output) {
             var table = document.getElementById('myTable');
             table.innerHTML = '';
-            for (var i = 0; i < output.data.results.length; i++) {    
+            for (var i = 0; i < output.results.length; i++) {    
                 console.log("reading result: " + i);
                     var row = ` <tr>
-                                            <td> ${output.data.results[i].provider}</td>
-                                            <td> ${output.data.results[i].name}</td>
-                                            <td> ${output.data.results[i].pickup}</td>
-                                            <td> ${output.data.results[i].arrival}</td>
-                                            <td> ${output.data.results[i].price}</td>
-                                            <td> ${output.data.results[i].seats}</td>
-                                            <td> ${output.data.results[i].shared}</td>
+                                            <td> ${output.results[i].provider}</td>
+                                            <td> ${output.results[i].name}</td>
+                                            <td> ${output.results[i].pickup}</td>
+                                            <td> ${output.results[i].arrival}</td>
+                                            <td> ${output.results[i].price}</td>
+                                            <td> ${output.results[i].seats}</td>
+                                            <td> ${output.results[i].shared}</td>
                                         </tr>`
                 table.innerHTML += row
             }
