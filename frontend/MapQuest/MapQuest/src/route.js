@@ -1,10 +1,6 @@
 // get the maneuver points of route provided by local API
-var plot = document.createElement('plot');
-plot.scr='index.html';
-document.head.appendChild(plot);
-
 function routing(apiResponse) {
-    var maneuverComponents = apiResponse.data.path.legs[0].maneuvers;
+    var maneuverComponents = apiResponse.path.legs[0].maneuvers;
     var routeComponentsLat = [];
     var routeComponentsLon = [];
     for(var i = 0; i < maneuverComponents.length; i++) {

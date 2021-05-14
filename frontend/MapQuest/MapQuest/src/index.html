@@ -110,11 +110,6 @@
     <!--Scripts to build the map and produce a route-->
     <script>
         L.mapquest.key = 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON';
-        //const api_url = 'http://127.0.0.1:5000/';
-
-        var results;
-        var isaboveaverage;
-        var apiData;
       
         // create the map
         var map = L.mapquest.map('map', {
@@ -165,17 +160,17 @@
             var destInput = document.getElementById("destination-input").value;
             main(startInput, destInput);
         }
+
+        // main function to create outputs
         async function main(start, dest) {
             var startLat, startLon, destLat, destLon;
             let startResp = await getStart(start);
-            console.log(startResp);
             startLat = startResp.results[0].locations[0].latLng.lat;
             startLon = startResp.results[0].locations[0].latLng.lng;
             let destResp = await getDest(dest);
-            console.log(destResp);
             destLat = destResp.results[0].locations[0].latLng.lat;
             destLon = destResp.results[0].locations[0].latLng.lng;
-            apiData = await getData(startLat, startLon, destLat, destLon);
+            var apiData = await getData(startLat, startLon, destLat, destLon);
             console.log(apiData);
             routing(apiData);
             buildAboveAverage(apiData);
@@ -201,11 +196,9 @@
                 buildTable(apiData)
             })
         }
-            
 
         // change user input into latitude and longitude cordinates through Geocoding API provided by MapQuest
         const geocode_url = "http://www.mapquestapi.com/geocoding/v1/address";
-        
         async function getStart(startLoc) {
             let response = await axios.get(geocode_url, {
                 params: {

@@ -1,3 +1,7 @@
+// Test file for index.html
+// Attempted to use Jest testing framework but could not get 'axios' working with the framework
+// Jest attempt found at the bottom
+
 import axios from 'axios';
 
 const api_url = 'http://127.0.0.1:5000/';
@@ -16,12 +20,14 @@ var manLon = -81.602837;
 var manCord = [manLat, manLon];
 var startTime, endTime;
 
+// comparative function
 const equals = (a, b) =>
   a.length === b.length &&
   a.every((v, i) => v === b[i]);
 
-function getData(sLat, sLon, eLat, eLon) {
-    axios.get(api_url, {
+// fetch data from api
+async function getData(sLat, sLon, eLat, eLon) {
+    let response = await axios.get(api_url, {
         params: {
             srclat: sLat,
             srclon: sLon,
@@ -29,74 +35,45 @@ function getData(sLat, sLon, eLat, eLon) {
             destlon: eLon
         }
     })
-    .then(function(response){
-        routing(response);
-        buildAboveAverage(response);
-        buildTable(response);
-    })
     .catch(function(error) {
         console.log(error);
-    })
+    });
+    return response.data;
 }
 
-function getLatLon(startLoc, destLoc) {
-    var startLat, startLon, endLat, endLon;
-    axios.get(geocode_url, {
+// convert starting location address to latitude and longitude cordinates
+async function getStart(startLoc) {
+    let response = await axios.get(geocode_url, {
         params: {
             key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
             location: startLoc
         }
     })
-    .then(function(response) {
-        // save starting location's latitude and longitude cordinates
-        startLat = response.data.results[0].locations[0].latLng.lat;
-        startLon = response.data.results[0].locations[0].latLng.lng;
-    })
     .catch(function(error) {
         console.log(error);
-        console.log("Please Enter a Valid Address");
+        alert("Please Enter a Valid Address");
     });
+    return response.data;
+}
 
-    axios.get(geocode_url, {
+// convert destination address to latitude and longitude cordinates
+async function getDest(destLoc) {
+    let response = await axios.get(geocode_url, {
         params: {
             key: 'ObOOcgLBayNvuhkFMUAKvmh5y7pXteON',
             location: destLoc
         }
     })
-    .then(function(response) {
-        // save destinations latitude and longitude cordinates
-        endLat = response.data.results[0].locations[0].latLng.lat;
-        endLon = response.data.results[0].locations[0].latLng.lng;
-    })
-    .then(function(response) {
-        getData(startLat, startLon, endLat, endLon);
-
-        var startCord = [startLat, startLon];
-        var endCord = [endLat, endLon];
-               
-        if (equals(startCord, srcCord)) {
-            console.log("PASS: starting cordinates are equal to 41.51083,-81.602861");
-        }
-        else {
-            console.log("FAIL: starting cordinates are not equal to 41.51083,-81.602837");
-        }
-
-        if (equals(endCord, desCord)) {
-            console.log("PASS: destination cordinates are equal to 41.411359,-81.837581");
-        }
-        else {
-            console.log("FAIL: destination cordinates are not equal to 41.411359,-81.837581");
-        }
-    })
     .catch(function(error) {
         console.log(error);
-        console.log("Please Enter A Valid Address");
+        alert("Please Enter a Valid Address");
     });
+    return response.data;
 }
 
 // get the maneuver points of route provided by local API
 function routing(apiResponse) {
-    var maneuverComponents = apiResponse.data.path.legs[0].maneuvers;
+    var maneuverComponents = apiResponse.path.legs[0].maneuvers;
     var routeComponentsLat = [];
     var routeComponentsLon = [];
     for(var i = 0; i < maneuverComponents.length; i++) {
@@ -104,6 +81,7 @@ function routing(apiResponse) {
         routeComponentsLon[i] = maneuverComponents[i].startPoint.lng;
         var maneuverCord = [routeComponentsLat[i], routeComponentsLon[i]];
 
+        // compare what is returned from API with what is expected
         if (i === 0) {
             if (equals(maneuverCord, manCord)) {
                 console.log("PASS: cordinates for the first maneuver is equal to 41.51083, -81.602837");
@@ -117,7 +95,8 @@ function routing(apiResponse) {
 
 // Function that Builds the Div from above average array
 function buildAboveAverage(apiResponse) {
-    if(typeof apiResponse.data.is_above_avg === "boolean"){
+    // ensure that a boolean is returned by the API
+    if(typeof apiResponse.is_above_avg === "boolean"){
         console.log("PASS: is_above_average value is a boolean");
     }
     else{
@@ -127,8 +106,10 @@ function buildAboveAverage(apiResponse) {
 
 // Function that Builds the Table from JSON array
 function buildTable(apiResponse) {
-    var response = apiResponse.data.results[0];
+    var response = apiResponse.results[0];
 
+    // compare what is returned from API with what is expected
+    // ensure all properties of the JSON object are proper variable types
     if(typeof response.provider === "string" && response.provider === "Uber"){
         console.log("PASS: the provider of the first entree is the string Uber");
     }
@@ -174,8 +155,24 @@ function buildTable(apiResponse) {
     end();
 }
 
+async function main() {
+    //getLatLon(srcLocation, desLocation);
+    let startResp = await getStart(srcLocation);
+    let startLat = startResp.results[0].locations[0].latLng.lat;
+    let startLon = startResp.results[0].locations[0].latLng.lng;
+    let destResp = await getDest(desLocation);
+    let destLat = destResp.results[0].locations[0].latLng.lat;
+    let destLon = destResp.results[0].locations[0].latLng.lng;
+    let apiData = await getData(startLat, startLon, destLat, destLon);
+    routing(apiData);
+    buildAboveAverage(apiData);
+    buildTable(apiData);
+}
+
+// time the test response time
 function start() {
     startTime = new Date();
+    main();
 };
 
 function end() {
@@ -184,5 +181,44 @@ function end() {
     console.log(timeDiff + " ms");
 }
 
+// starts the test
 start();
-getLatLon(srcLocation, desLocation);
+
+
+
+/*
+import axios from 'axios';
+
+const srcLocation = "11611 Euclid Ave";
+const desLocation = "5300 Riverside Dr";
+const srcLat = 41.510853;
+const srcLon = -81.602861;
+const desLat = 41.411359;
+const desLon = -81.837581;
+const srcCord = [srcLat, srcLon];
+const desCord = [desLat, desLon];
+const manLat = 41.51083;
+const manLon = -81.602837;
+const manCord = [manLat, manLon];
+const above_avg = false;
+
+jest.mock('axios');
+
+const getData = require('./getapidata');
+var apiData;
+
+async function fetchData() {
+    apiData = await getData(srcLat, srcLon, desLat, desLon);
+}
+fetchData();
+
+test('data fetched from api should be defined', () => {
+    expect(apiData).toBeDefined();
+});
+
+test('JSON object returned from api should have is_above_avg, path, and results properties', () => {
+    expect(apiData).toHaveProperty('is_above_avg');
+    expect(apiData).toHaveProperty('path');
+    expect(apiData).toHaveProperty('results');
+});
+*/
